@@ -14,3 +14,6 @@
 - [ ] XML ouput
 - [ ] bitmap loading test
 
+## misc
+
+- [ ] Jenkins - check file column number

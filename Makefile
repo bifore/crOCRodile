@@ -1,18 +1,39 @@
-CC     = gcc
-NAME   = OCRodile
-CFLAGS = -Wall -Wextra -std=c99 -g
-RM     = rm -fv
+CC        = gcc
+NAME      = OCRodile
+CFLAGS    = -Wall -Wextra -std=c99 -g
+RM        = rm -fv
+MKDIR     = mkdir -p
 
-SRC    = src/main.c         \
-         src/io/bmpReader.c \
-         src/utils/error.c  \
-         src/utils/lkList.c \
-         src/utils/vector.c \
+MAIN      = src/main.c
+
+SRC       = src/io/bmpReader.c \
+            src/utils/error.c  \
+            src/utils/lkList.c \
+            src/utils/vector.c \
+            src/utils/string.c \
+
+BUILD_DIR = build/
+
+SRC_TEST  = test/test.c        \
+            src/utils/error.c  \
+            src/utils/string.c \
+            src/utils/vector.c \
+
+TEST      = test/io/imageLoading.c \
 
 all: $(NAME)
 
 $(NAME): $(SRC)
-	$(CC) -o $(NAME).o $(SRC) $(CFLAGS)
+	$(MKDIR) $(BUILD_DIR)
+	$(CC) -o $(BUILD_DIR)$(NAME).o $(MAIN) $(SRC) $(CFLAGS)
 
 clean:
-	$(RM) $(NAME).o
+	$(RM) $(BUILD_DIR)*.o
+	$(RM) $(BUILD_DIR)*.xml
+
+test:
+	$(MKDIR) $(BUILD_DIR)
+	$(CC) -o $(BUILD_DIR)$(NAME)_test.o $(SRC_TEST) $(CFLAGS)
+	$(BUILD_DIR)$(NAME)_test.o $(BUILD_DIR) $(CC) '$(CFLAGS)' '$(SRC)' $(TEST)
+
+.PHONY: test
