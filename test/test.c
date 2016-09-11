@@ -83,10 +83,10 @@ int main(int argc, char * argv[])
         double tps = (stop - start) / CLOCKS_PER_SEC;
         int e_nb = cc_code == 0 ? 0 : 1;
         int f_nb = pg_code == 0 ? 0 : 1;
-        fprintf(xml, "errors=\"%d\" failures=\"%d\" tests=\"1\">", e_nb, f_nb);
+        fprintf(xml, "errors=\"%d\" failures=\"0\" tests=\"1\">", e_nb + f_nb);
         fprintf(xml, "<testcase name=\"%s\" time=\"%f\">", argv[i], tps);
-        fprintf(xml, "<system-out>%s\n\n%s</system-out>", pg_out, dbg_out);
-        fprintf(xml, "<system-err>%s</system-err>", cc_out);
+        fprintf(xml, "<system-out>%s</system-out>", pg_out);
+        fprintf(xml, "<system-err>%s\n\n%s</system-err>", cc_out, dbg_out);
         fprintf(xml, "</testcase>");
         fprintf(xml, "</testsuite>");
 

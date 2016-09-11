@@ -10,8 +10,8 @@
 
 ## test
 
-- [ ] basic test support
-- [ ] XML ouput
+- [x] basic test support
+- [x] XML ouput
 - [ ] bitmap loading test
 
 ## misc
