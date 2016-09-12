@@ -13,9 +13,5 @@ int main()
         fail("Wrong bitmap dimension");
     }
     freeBitmap(bmp);
-    if(bmp != NULL)
-    {
-        fail("Fail to free the bitmap");
-    }
     return 0;
 }
