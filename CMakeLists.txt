@@ -8,9 +8,8 @@ set(SOURCE_FILES
         src/io/bmpReader.c
         src/utils/error.c
         src/utils/lkList.c
-        src/utils/safe.c
-        src/utils/string.c
         src/utils/vector.c
+        src/utils/string.c
         )
 
 add_executable(OCRodile ${SOURCE_FILES})

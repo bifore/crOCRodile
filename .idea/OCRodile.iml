@@ -9,13 +9,11 @@
       <sourceFolder url="file://$MODULE_DIR$/src/utils/string.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/utils/error.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/utils/vector.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/utils/lkList.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/utils/string.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/utils/vector.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/utils/lkList.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/utils/safe.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/utils/error.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/utils/safe.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/utils/lkList.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
