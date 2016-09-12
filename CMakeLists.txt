@@ -1,14 +1,15 @@
 cmake_minimum_required(VERSION 3.6)
 project(OCRodile)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_C_FLAGS "-Wall -Wextra -std=c99 -g")
 
 set(SOURCE_FILES
-    src/main.c
-    src/main.h
-    .gitignore
-    AUTHORS
-    Makefile
-    README)
+        src/main.c
+        src/io/bmpReader.c
+        src/utils/error.c
+        src/utils/lkList.c
+        src/utils/vector.c
+        src/utils/string.c
+        )
 
 add_executable(OCRodile ${SOURCE_FILES})
