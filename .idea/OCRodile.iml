@@ -4,14 +4,20 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src/io/bmpReader.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/io/bmpReader.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/api/router.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/api/router.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/api/crusader/socketutils.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/api/crusader/socketutils.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/api/crusader/crusader.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/api/crusader/crusader.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/utils/string.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/utils/error.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/utils/vector.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/utils/string.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/utils/vector.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/utils/lkList.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/utils/error.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/utils/error.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/utils/lkList.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />

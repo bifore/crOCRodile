@@ -10,6 +10,6 @@ set(SOURCE_FILES
         src/utils/lkList.c
         src/utils/vector.c
         src/utils/string.c
-        )
+        src/api/router.c src/api/router.h src/api/crusader/crusader.c src/api/crusader/crusader.h src/api/crusader/socketutils.c src/api/crusader/socketutils.h)
 
 add_executable(OCRodile ${SOURCE_FILES})
