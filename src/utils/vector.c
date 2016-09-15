@@ -12,6 +12,8 @@ Vector * vec_create(int capacity)
 
 void vec_free(Vector * vec)
 {
+   for(int i = 0; i < vec->size; ++i)
+       free(vec->data[i]);
    free(vec->data);
    free(vec);
 }
@@ -20,6 +22,8 @@ Vector * vec_add(Vector * vec, void * value)
 {
     if(vec->size == vec->capacity)
     {
+        if(vec->capacity < 10)
+            vec->capacity = 10;
         vec->capacity *= VECTOR_GROWTH_RATE;
         vec->data = realloc(vec->data, sizeof(void *) * vec->capacity);
     }
@@ -59,4 +63,17 @@ Vector * vec_delete(Vector * vec, int index)
     }
     --vec->size;
     return vec;
+}
+
+Vector * vec_add_int(Vector * vec, int value)
+{
+    int * ptr = malloc(sizeof(int));
+    *ptr = value;
+    return vec_add(vec, (void *) ptr);
+}
+
+
+int vec_get_int(Vector * vec, int index)
+{
+    return *(int *) vec_get(vec, index);
 }

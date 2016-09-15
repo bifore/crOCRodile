@@ -15,9 +15,14 @@ typedef struct
 
 Vector * vec_create(int capacity);
 void vec_free(Vector * vec);
+Vector * vec_delete(Vector * vec, int index);
+
 Vector * vec_add(Vector * vec, void * value);
 Vector * vec_set(Vector * vec, int index, void * value);
 void * vec_get(Vector * vec, int index);
-Vector * vec_delete(Vector * vec, int index);
+
+Vector * vec_add_int(Vector * vec, int value);
+int vec_get_int(Vector * vec, int index);
+
 
 #endif /* !UTILS_VECTOR_H_ */
