@@ -59,7 +59,7 @@ void img_crop_ip(Image * img, int x, int y, int width, int height)
     img->y_root = result->y_root;
     free(img->raster);
     img->raster = result->raster;
-    img_free(result);
+    free(result);
 }
 
 
@@ -135,7 +135,7 @@ Image * img_crop_border(Image * img, bool ip)
 void img_print(Image * img)
 {
     printf("D => (%i x %i) ", img->width, img->height);
-    printf("@ => (%i, %i)\n", img->x_root, img->y_root);
+    printf("@ => (%i, %i)\n/", img->x_root, img->y_root);
     for(int x = 0; x < img->width; ++x)
         printf("-");
     printf("\\\n");
@@ -185,7 +185,7 @@ Image * img_extract_character(Image * img)
     for(int i = 0; i < pixels->size; ++i)
         character->raster[vec_get_int(pixels, i)] = true;
     img_crop_border(character, true);
-    vec_free(pixels);
+    vec_free(pixels, true);
     return character;
 }
 

@@ -26,7 +26,7 @@ int main()
 
     for(int i = 0; i < chars->size; ++i)
         img_free((Image *) vec_get(chars, i));
-    vec_free(chars);
+    vec_free(chars, false);
 
     img_free(original);
     img_free(image);

@@ -4,6 +4,7 @@
 #define VECTOR_GROWTH_RATE 2
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 typedef struct
 {
@@ -14,7 +15,7 @@ typedef struct
 } Vector;
 
 Vector * vec_create(int capacity);
-void vec_free(Vector * vec);
+void vec_free(Vector * vec, bool free_data);
 Vector * vec_delete(Vector * vec, int index);
 
 Vector * vec_add(Vector * vec, void * value);

@@ -25,7 +25,7 @@ Image * img_crop_border(Image * img, bool ip);
 
 void img_print(Image * img);
 
-Image * img_extract_charater(Image * img);
+Image * img_extract_character(Image * img);
 void _img_explore_character(Image * img, Vector * pixels, int x, int y);
 
 #endif /* !UTILS_IMAGE_H_ */

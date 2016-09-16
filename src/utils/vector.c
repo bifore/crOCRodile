@@ -10,10 +10,13 @@ Vector * vec_create(int capacity)
     return vec;
 }
 
-void vec_free(Vector * vec)
+void vec_free(Vector * vec, bool free_data)
 {
-   for(int i = 0; i < vec->size; ++i)
-       free(vec->data[i]);
+   if(free_data)
+   {
+       for(int i = 0; i < vec->size; ++i)
+           free(vec->data[i]);
+   }
    free(vec->data);
    free(vec);
 }
