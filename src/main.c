@@ -3,23 +3,23 @@
 #include "utils/image.h"
 #include "utils/vector.h"
 
+//test
+#include "ann/network.h"
+
 int main()
 {
     BITMAP * bmp = loadBitmap("res/normal_text_small.bmp");
     Image * original = img_create(bmp);
     freeBitmap(bmp);
 
-    img_print(original);
 
     Image * image = img_crop_border(original, false);
-    img_print(image);
 
     Vector * chars = vec_create(10);
     Image * character = img_extract_character(image);
     while(character != NULL)
     {
         vec_add(chars, (void *) character);
-        img_print(character);
         character = img_extract_character(image);
     }
     printf("character number -> %i\n", chars->size);
@@ -30,6 +30,14 @@ int main()
 
     img_free(original);
     img_free(image);
+
+
+    // test
+    Network * net = net_create(400);
+    net_addLayer(net, 225);
+    net_addLayer(net, 75);
+    net_addLayer(net, 26);
+    net_free(net);
 
     return 0;
 }

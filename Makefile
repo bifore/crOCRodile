@@ -11,7 +11,8 @@ SRC       = src/io/bmpReader.c \
             src/utils/lkList.c \
             src/utils/vector.c \
             src/utils/string.c \
-            src/utils/image.c \
+            src/utils/image.c  \
+            src/ann/network.c  \
 
 BUILD_DIR = build/
 

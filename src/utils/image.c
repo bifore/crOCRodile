@@ -212,3 +212,26 @@ void _img_explore_character(Image * img, Vector * pixels, int x, int y)
     if(x > 0 && y < img->height - 1 && img->raster[p_index + img->width - 1])
         _img_explore_character(img, pixels, x - 1, y + 1);
 }
+
+Image * img_normalize(Image * img, int size)
+{
+    Image * result = (Image *) malloc(sizeof(Image));
+    result->width = size;
+    result->height = size;
+    result->x_root = -1;
+    result->y_root = -1;
+    result->raster = calloc(size * size, sizeof(bool));
+    float x_factor = (float) img->width / size;
+    float y_factor = (float) img->height / size;
+    for(int y = 0; y < size; ++y)
+    {
+        for(int x = 0; x < size; ++x)
+        {
+            int xi = (float) x * x_factor;
+            int yi = (float) y * y_factor;
+            if(img->raster[yi * img->width + xi])
+                result->raster[y * size + x] = true;
+        }
+    }
+    return result;
+}

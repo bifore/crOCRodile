@@ -28,4 +28,6 @@ void img_print(Image * img);
 Image * img_extract_character(Image * img);
 void _img_explore_character(Image * img, Vector * pixels, int x, int y);
 
+Image * img_normalize(Image * img, int size);
+
 #endif /* !UTILS_IMAGE_H_ */
