@@ -5,16 +5,16 @@ int main()
 {
     GdkPixbuf *img = img_load("normal_text.bmp");
     Canny_filter *cf = canny(img);
-    for(int y = 0; y < cf->h; ++y)
-    {
-        for(int x = 0; x < cf->w; ++x)
-            if(cf->data[y * cf->w + x])
-                printf("#");
+    guchar *data = (guchar *) malloc(sizeof(guchar) * cf->w * cf->h * 3);
+    int a = 0;
+    for(int i = 0; i < cf->w * cf->h; ++i)
+        for(int u = 0; u < 3; ++u)
+            if(cf->data[i])
+                data[++a] = 255;
             else
-                printf(" ");
-        printf("\n");
-
-    }
-    canny_free(cf);
+                data[++a] = 0;
+    img_save(data, "normal_text_edges.bmp", cf->w, cf->h);
+    free(data);
     g_object_unref(img);
+    canny_free(cf);
 }
