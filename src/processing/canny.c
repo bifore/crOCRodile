@@ -226,8 +226,8 @@ Canny_filter *canny(GdkPixbuf *image)
     float gaussianKernelRaduis = 2;
     float gaussianKernelWidth = 16;
     comp_gradient(cf, gaussianKernelRaduis, gaussianKernelWidth);
-    int low = roundf(2.5 * MAGNITUDE_SCALE);
-    int high = round(7.5 * MAGNITUDE_SCALE);
+    int low = roundf(0.5 * MAGNITUDE_SCALE);
+    int high = round(1.0 * MAGNITUDE_SCALE);
     perf_hysteresis(cf, low, high);
     comp_edges(cf);
     return cf;
