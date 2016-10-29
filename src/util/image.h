@@ -1,5 +1,5 @@
-#ifndef UTIL_IMAGE_H_
-#define UTIL_IMAGE_H_
+#ifndef UTILS_IMAGE_H_
+#define UTILS_IMAGE_H_
 
 #include <gtk/gtk.h>
 
@@ -28,4 +28,4 @@ void _img_explore_character(Image *img, Vector *pixels, int x, int y);
 
 Image *img_normalize(Image *img, int size);
 
-#endif /* UTIL_IMAGE_H_ */
+#endif /* UTILS_IMAGE_H_ */
