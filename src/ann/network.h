@@ -10,9 +10,8 @@ typedef struct {
 } Network;
 
 typedef struct {
-    Matrix *a;
-    Matrix *w;
-    Matrix *z;
+    Matrix *weights;
+    Matrix *act;
     int depth;
 } Layer;
 
@@ -37,10 +36,5 @@ void net_forward(Network *net);
 // ========== Backward ==========
 
 Vector *net_backward(Network *net, Matrix *y);
-
-// ========== Num check =========
-
-float net_cost(Network *net, Matrix *y);
-Vector *net_numGrad(Network *net, Matrix *y);
 
 #endif /* ANN_NETWORK_H */
