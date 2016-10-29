@@ -66,10 +66,16 @@ int main()
     y->mat[0] = 1.0;
     Vector *delta = net_backward(net, y);
 
+    Vector *numDelta = net_numGrad(net, y);
+
     mat_free(y, true);
     for(int i = 0; i < delta->size; ++i)
+    {
         mat_free((Matrix *) vec_get(delta, i), true);
+        mat_free((Matrix *) vec_get(numDelta, i), true);
+    }
     vec_free(delta, false);
+    vec_free(numDelta, false);
 
     net_free(net);
 }
