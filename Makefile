@@ -14,6 +14,7 @@ SRC       = src/io/image.c         \
             src/util/maths.c       \
             src/util/vector.c      \
             src/util/string.c      \
+            src/util/image.c       \
             src/ann/network.c      \
 
 BUILD_DIR = build
