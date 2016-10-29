@@ -28,9 +28,13 @@ void net_addLayer(Network *net, int nbUnit);
 
 void net_loadInput(Network *net, float *input);
 
-// ========== Forward ==========
+// ========== Forward ===========
 
 void lyr_forward(Layer *previous, Layer *current);
 void net_forward(Network *net);
+
+// ========== Backward ==========
+
+Vector *net_backward(Network *net, Matrix *y);
 
 #endif /* ANN_NETWORK_H */

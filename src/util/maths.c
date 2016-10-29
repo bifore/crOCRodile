@@ -1,6 +1,7 @@
 #include "maths.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 Matrix * mat_create(int width, int height, float * matrix)
@@ -31,7 +32,7 @@ Matrix * mat_multiply(Matrix * a, Matrix * b)
         {
             for(int d = 0; d < a->width; ++d)
             {
-                int v = a->mat[y * a->width + d] * b->mat[d * b->width + x];
+                float v = a->mat[y * a->width + d] * b->mat[d * b->width + x];
                 r->mat[y * r->width + x] += v;
             }
         }
@@ -39,16 +40,55 @@ Matrix * mat_multiply(Matrix * a, Matrix * b)
     return r;
 }
 
+
+Matrix *ary_multiply(Matrix *a, Matrix *b)
+{
+    Matrix *r = mat_create(a->width, a->height, NULL);
+    for(int y = 0; y < a->height; ++y)
+    {
+        float l = b->mat[y];
+        for(int x = 0; x < a->width; ++x)
+            r->mat[y * a->width + x] = a->mat[y * a->width + x] * l;
+    }
+    return r;
+}
+void ary_multiply_ip(Matrix *a, Matrix *b)
+{
+    for(int y = 0; y < a->height; ++y)
+    {
+        float l = b->mat[y];
+        for(int x = 0; x < a->width; ++x)
+            a->mat[y * a->width + x] *= l;
+    }
+}
+
+Matrix *mat_substract(Matrix *a, Matrix *b)
+{
+    Matrix *r = mat_create(a->width, a->height, NULL);
+    for(int i = 0; i < a->width * a->height; ++i)
+        r->mat[i] = a->mat[i] - b->mat[i];
+    return r;
+}
+
+void mat_substract_ip(Matrix *a, Matrix *b)
+{
+    for(int i = 0; i < a->width * a->height; ++i)
+        a->mat[i] -= b->mat[i];
+}
+
 Matrix * mat_transpose(Matrix * a)
 {
     Matrix * r = mat_create(a->height, a->width, NULL);
     for(int y = 0; y < r->height; ++y)
-    {
         for(int x = 0; x < r->width; ++x)
-        {
             r->mat[y * r->width + x] = a->mat[x * a->width + y];
-        }
-    }
+    return r;
+}
+
+Matrix *mat_cpy(Matrix *a)
+{
+    Matrix *r = mat_create(a->width, a->height, NULL);
+    memcpy(r->mat, a->mat, a->width * a->height * sizeof(float));
     return r;
 }
 
@@ -63,6 +103,11 @@ void mat_apply(float (* func) (float), Matrix * mat)
 float mth_sigmoid(float x)
 {
     return 1 / (1 + expf(-x));
+}
+
+float mth_sigmoid_prime(float x)
+{
+    return expf(-x) / ((1 + expf(-x)) * (1 + expf(-x)));
 }
 
 float mth_apply(float (* func) (float), float x)

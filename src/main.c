@@ -22,18 +22,27 @@ int main()
 
     Network *net = net_create(4, 1, "test_1");
     net_addLayer(net, 10);
-    net_randomizeLayer(net, 0);
-    net_addLayer(net, 1);
     net_randomizeLayer(net, 1);
+    net_addLayer(net, 1);
+    net_randomizeLayer(net, 2);
 
     float *input = (float *) malloc(4 * 1 * sizeof(float));
-    input[0] = 1;
-    input[1] = 2;
-    input[2] = 4;
-    input[3] = 6;
+    input[0] = .1;
+    input[1] = .2;
+    input[2] = .4;
+    input[3] = .6;
     net_loadInput(net, input);
 
     net_forward(net);
+
+    Matrix *y = mat_create(1, 1, NULL);
+    y->mat[0] = 1.0;
+    Vector *delta = net_backward(net, y);
+
+    mat_free(y, true);
+    for(int i = 0; i < delta->size; ++i)
+        mat_free((Matrix *) vec_get(delta, i), true);
+    vec_free(delta, false);
 
     net_free(net);
 }
