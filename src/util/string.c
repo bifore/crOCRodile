@@ -11,7 +11,7 @@ char * str_con(int nb, ...)
         strs[i] = va_arg(list, char *);
         len += strlen(strs[i]);
     }
-    char * dest = malloc(len);
+    char *dest = malloc((size_t) len);
     strcpy(dest, strs[0]);
     for(int i = 1; i < nb; ++i)
     {

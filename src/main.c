@@ -1,11 +1,9 @@
 #include "io/image.h"
 #include "processing/canny.h"
 
-#include "ann/network.h"
-
 int main()
 {
-    /*GdkPixbuf *img = img_load("normal_text.bmp");
+    GdkPixbuf *img = img_load("normal_text.bmp");
     Canny_filter *cf = canny(img);
     guchar *data = (guchar *) malloc(sizeof(guchar) * cf->w * cf->h * 3);
     int a = 0;
@@ -18,8 +16,9 @@ int main()
     img_save(data, "normal_text_edges.bmp", cf->w, cf->h);
     free(data);
     g_object_unref(img);
-    canny_free(cf);*/
+    canny_free(cf);
 
+    /*
     Network *net = net_create(4, 1, "test_1");
     net_addLayer(net, 10);
     net_randomizeLayer(net, 0);
@@ -36,4 +35,5 @@ int main()
     net_forward(net);
 
     net_free(net);
+     */
 }

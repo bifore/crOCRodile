@@ -2,7 +2,6 @@
 
 #include "../util/string.h"
 
-#include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 
@@ -42,7 +41,7 @@ void net_free(Network *net)
 void net_randomizeLayer(Network *net, int depth)
 {
     Layer *lyr = (Layer *) vec_get(net->layers, depth);
-    srand(time(NULL));
+    srand((unsigned int) time(NULL));
     for(int i = 0; i < lyr->weights->width * lyr->weights->height; ++i)
     {
         lyr->weights->mat[i] = (float) rand() / (float) (RAND_MAX);

@@ -9,7 +9,7 @@ Matrix * mat_create(int width, int height, float * matrix)
     mat->width = width;
     mat->height = height;
     if(matrix == NULL)
-        mat->mat = (float *) calloc(width * height, sizeof(float));
+        mat->mat = (float *) calloc((size_t) (width * height), sizeof(float));
     else
         mat->mat = matrix;
     return mat;
@@ -31,7 +31,7 @@ Matrix * mat_multiply(Matrix * a, Matrix * b)
         {
             for(int d = 0; d < a->width; ++d)
             {
-                int v = a->mat[y * a->width + d] * b->mat[d * b->width + x];
+                int v = (int) (a->mat[y * a->width + d] * b->mat[d * b->width + x]);
                 r->mat[y * r->width + x] += v;
             }
         }
