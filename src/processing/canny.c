@@ -1,5 +1,3 @@
-//TODO normalize contrast
-
 #include "canny.h"
 
 #define PI 3.14159265358979323846
@@ -11,6 +9,7 @@ void init_array(Canny_filter *cf)
 {
     int size = cf->w * cf->h;
     cf->data = (int *) malloc(size * sizeof(int));
+    cf->lumin = (int *) malloc(size * sizeof(int));
     cf->magnitude = (int *) malloc(size * sizeof(int));
     cf->dir = (float *) malloc(size * sizeof(float));
     cf->x_conv = (float *) malloc(size * sizeof(float));
@@ -22,6 +21,7 @@ void init_array(Canny_filter *cf)
 void canny_free(Canny_filter *cf)
 {
     free(cf->data);
+    free(cf->lumin);
     free(cf->magnitude);
     free(cf->dir);
     free(cf->x_conv);
@@ -41,7 +41,9 @@ void read_lumi(Canny_filter *cf)
         {
             guchar *p = ori + y * row_size + x * n;
             int i = y * cf->w + x;
-            cf->data[i] = (int) roundf((float) (.299 * p[0] + .587 * p[1] + .114 * p[2]));
+            int luminescence = (int) roundf((float) (.299 * p[0] + .587 * p[1] + .114 * p[2]));
+            cf->data[i] = luminescence;
+            cf->lumin[i] = luminescence;
         }
 }
 

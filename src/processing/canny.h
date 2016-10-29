@@ -9,6 +9,7 @@
 typedef struct
 {
     int *data;
+    int *lumin;
     int *magnitude;
     float *dir;
     float *x_conv;
