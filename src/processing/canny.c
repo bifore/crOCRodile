@@ -4,6 +4,22 @@
 #define GAUSSIAN_CUT_OFF .005
 #define MAGNITUDE_LIMIT 1000.
 #define MAGNITUDE_SCALE 100.
+#define NORMALIZE_CONTRAST 0
+
+void normalizeContrast(Canny_filter *cf);
+void init_array(Canny_filter *cf);
+void read_lumi(Canny_filter *cf);
+void read_lumi(Canny_filter *cf);
+float gaussian(float x, float sig);
+float dist(float x, float y);
+float absf(float x);
+void comp_gradient(Canny_filter *cf, float k_raduis, float k_width);
+void follow(Canny_filter *cf, int xi, int yi, int ii, int t);
+void perf_hysteresis(Canny_filter *cf, int low, int hight);
+void comp_edges(Canny_filter *cf);
+
+void canny_free(Canny_filter *cf);
+
 
 void init_array(Canny_filter *cf)
 {
@@ -217,6 +233,29 @@ void comp_edges(Canny_filter *cf)
         cf->data[i] = cf->data[i] > 0;
 }
 
+void normalizeContrast(Canny_filter *cf)
+{
+    int histogram[256];
+    for (int i = 0; i < cf->w * cf-> h; ++i) {
+        ++histogram[cf->data[i]];
+    }
+    int remap[256];
+    int sum = 0;
+    int j = 0;
+    for (int i = 0; i < 256; ++i) {
+        sum += histogram[i];
+        int target = sum*255/(cf->w * cf->h);
+        for (int k = j+1; k <=target; k++) {
+            remap[k] = i;
+        }
+        j = target;
+    }
+
+    for (int i = 0; i < (cf->w * cf->h); i++) {
+        cf->data[i] = remap[cf->data[i]];
+    }
+}
+
 Canny_filter *canny(GdkPixbuf *image)
 {
     Canny_filter *cf = (Canny_filter *) malloc(sizeof(Canny_filter));
@@ -225,6 +264,8 @@ Canny_filter *canny(GdkPixbuf *image)
     cf->w = gdk_pixbuf_get_width(image);
     init_array(cf);
     read_lumi(cf);
+    if (NORMALIZE_CONTRAST)
+        normalizeContrast(cf);
     float gaussianKernelRaduis = 2;
     float gaussianKernelWidth = 16;
     comp_gradient(cf, gaussianKernelRaduis, gaussianKernelWidth);
