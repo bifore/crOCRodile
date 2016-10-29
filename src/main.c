@@ -1,9 +1,12 @@
 #include "io/image.h"
 #include "processing/canny.h"
 
+#define IMAGE "testset/simple/normal_text.bmp"
+#define IMAGE_OUT "testset/simple/normal_text_edges.bmp"
+
 int main()
 {
-    GdkPixbuf *img = img_load("normal_text.bmp");
+    GdkPixbuf *img = img_load(IMAGE);
     Canny_filter *cf = canny(img);
     guchar *data = (guchar *) malloc(sizeof(guchar) * cf->w * cf->h * 3);
     int a = 0;
@@ -13,7 +16,7 @@ int main()
                 data[++a] = 255;
             else
                 data[++a] = 0;
-    img_save(data, "normal_text_edges.bmp", cf->w, cf->h);
+    img_save(data, IMAGE_OUT, cf->w, cf->h);
     free(data);
     g_object_unref(img);
     canny_free(cf);
