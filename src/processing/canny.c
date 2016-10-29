@@ -230,5 +230,9 @@ Canny_filter *canny(GdkPixbuf *image)
     int high = round(1.0 * MAGNITUDE_SCALE);
     perf_hysteresis(cf, low, high);
     comp_edges(cf);
+    for(int y = 0; y < cf->h; ++y)
+        for(int x = 0; x < cf->w; ++x)
+            if(x == 15 || y == 15 || x == cf->w - 16 || y == cf->h - 16)
+                cf->data[y * cf->w + x] = 0;
     return cf;
 }
