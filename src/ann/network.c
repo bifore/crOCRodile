@@ -83,6 +83,7 @@ void lyr_forward(Layer *previous, Layer *current)
 {
     mat_free(current->act, true);
     current->act = mat_multiply(previous->act, current->weights);
+    mat_apply(mth_sigmoid_prime, current->act);
 }
 
 void net_forward(Network *net)
@@ -91,4 +92,43 @@ void net_forward(Network *net)
         lyr_forward(vec_get(net->layers, i - 1), vec_get(net->layers, i));
 }
 
+// ========== Backward ==========
 
+Vector *net_backward(Network *net, Matrix *y)
+{
+    Layer *ll = (Layer *) vec_get(net->layers, net->layers->size - 1);
+    mat_substract_ip(y, ll->act);
+
+    Vector *delta = vec_create(net->layers->size - 1);
+
+    Layer *cur = (Layer *) vec_get(net->layers, net->layers->size - 1);
+    Matrix *act = mat_cpy(cur->act);
+    mat_apply(mth_sigmoid_prime, act);
+    Matrix *dlt = ary_multiply(y, act);
+    mat_free(act, true);
+    Layer *prev = (Layer *) vec_get(net->layers, net->layers->size - 2);
+    act = mat_transpose(prev->act);
+    vec_add(delta, mat_multiply(act, dlt));
+    mat_free(act, true);
+    mat_free(dlt, true);
+
+    int di = 0;
+    for(int i = net->layers->size - 2; i > 0; --i)
+    {
+        Layer *nl = (Layer *) vec_get(net->layers, i + 1);
+        Matrix *wt = mat_transpose(nl->weights);
+        Matrix *yc = mat_multiply((Matrix *) vec_get(delta, di++), wt);
+        mat_free(wt, true);
+        Layer *cur = (Layer *) vec_get(net->layers, i);
+        Matrix *act = mat_transpose(cur->act);
+        Matrix *dlt = ary_multiply(yc, act);
+        mat_free(act, true);
+        mat_free(yc, true);
+        Layer *pl = (Layer *) vec_get(net->layers, i - 1);
+        Matrix *x = mat_transpose(pl->act);
+        vec_add(delta, mat_multiply(x, dlt));
+        mat_free(dlt, true);
+        mat_free(x, true);
+    }
+    return delta;
+}
