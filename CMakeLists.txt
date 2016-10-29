@@ -3,14 +3,11 @@ project(crOCRodile)
 find_package(PkgConfig REQUIRED)
 
 set(CMAKE_C_FLAGS
-        "${CMAKE_C_FLAGS} -Wall -Wextra -std=c99 -g -lm ")
+        "${CMAKE_C_FLAGS} -Wall -Wextra -std=c99 -g -lm")
 
 # C SOURCE FILES
-file(GLOB_RECURSE SOURCE_FILES "src/*.c")
-# APPEND NON-C
-set(SOURCE_FILES
-        ${SOURCE_FILES}
-        src/defaults.h)
+file(GLOB_RECURSE SOURCE_FILES "src/*.c" "src/*.h")
+
 add_executable(crOCRodile ${SOURCE_FILES})
 
 # LIBRARIES LIST

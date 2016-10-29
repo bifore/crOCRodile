@@ -24,4 +24,5 @@ typedef struct
 Canny_filter *canny(GdkPixbuf *image);
 void canny_free(Canny_filter *cf);
 
+
 #endif /* !PROCESSING_CANNY_H_ */
