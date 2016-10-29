@@ -1,5 +1,6 @@
 #include "io/image.h"
 #include "processing/canny.h"
+#include "util/image.h"
 
 #include "ann/network.h"
 
@@ -18,6 +19,26 @@ int main()
                 data[++a] = 0;
     img_save(data, "normal_text_edges.png", cf->w, cf->h);
     free(data);
+
+    Image * original = img_create(img);
+    Image * image = img_crop_border(original, false);
+
+    Vector * chars = vec_create(10);
+    Image * character = img_extract_character(image);
+    while(character != NULL)
+    {
+        vec_add(chars, (void *) character);
+        character = img_extract_character(image);
+    }
+    printf("character number -> %i\n", chars->size);
+
+    for(int i = 0; i < chars->size; ++i)
+        img_free((Image *) vec_get(chars, i));
+    vec_free(chars, false);
+
+    img_free(original);
+    img_free(image);
+
     g_object_unref(img);
     canny_free(cf);
 
