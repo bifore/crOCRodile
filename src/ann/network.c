@@ -10,15 +10,17 @@ Layer *lyr_create(int inputSize, int nbExample, int prevInput, int depth)
 {
     Layer *lyr = (Layer *) malloc(sizeof(Layer));
     lyr->depth = depth;
-    lyr->weights = mat_create(inputSize, prevInput, NULL);
-    lyr->act = mat_create(inputSize, nbExample, NULL);
+    lyr->a = mat_create(inputSize, nbExample, NULL);
+    lyr->z = mat_create(inputSize, nbExample, NULL);
+    lyr->w = mat_create(inputSize, prevInput, NULL);
     return lyr;
 }
 
 void lyr_free(Layer *lyr)
 {
-    mat_free(lyr->weights, true);
-    mat_free(lyr->act, true);
+    mat_free(lyr->a, true);
+    mat_free(lyr->z, true);
+    mat_free(lyr->w, true);
     free(lyr);
 }
 
@@ -43,9 +45,9 @@ void net_randomizeLayer(Network *net, int depth)
 {
     Layer *lyr = (Layer *) vec_get(net->layers, depth);
     srand(time(NULL));
-    for(int i = 0; i < lyr->weights->width * lyr->weights->height; ++i)
+    for(int i = 0; i < lyr->w->width * lyr->w->height; ++i)
     {
-        lyr->weights->mat[i] = (float) rand() / (float) (RAND_MAX);
+        lyr->w->mat[i] = (float) rand() / (float) (RAND_MAX);
     }
 }
 
@@ -54,9 +56,9 @@ void net_loadLayerWeights(Network *net, int depth)
     Layer *lyr = (Layer *) vec_get(net->layers, depth);
     char *path = str_con(5, "res/network/", net->name, "_", depth, ".layer");
     FILE *file = fopen(path, "w");
-    for(int i = 0; i < lyr->weights->height * lyr->weights->width; ++i)
+    for(int i = 0; i < lyr->w->height * lyr->w->width; ++i)
     {
-        fread(lyr->weights->mat, sizeof(float), 1, file);
+        fread(lyr->w->mat, sizeof(float), 1, file);
     }
     fclose(file);
 }
@@ -64,9 +66,9 @@ void net_loadLayerWeights(Network *net, int depth)
 void net_addLayer(Network *net, int nbUnit)
 {
     Layer *fl = (Layer *) vec_get(net->layers, 0);
-    int nbExample = fl->act->height;
+    int nbExample = fl->a->height;
     Layer *ll = (Layer *) vec_get(net->layers, net->layers->size - 1);
-    int last = ll->weights->width;
+    int last = ll->w->width;
     Layer *lyr = lyr_create(nbUnit, nbExample, last, net->layers->size);
     vec_add(net->layers, lyr);
 }
@@ -74,17 +76,19 @@ void net_addLayer(Network *net, int nbUnit)
 void net_loadInput(Network *net, float *input)
 {
     Layer *fl = (Layer *) vec_get(net->layers, 0);
-    free(fl->act->mat);
-    fl->act->mat = input;
+    free(fl->a->mat);
+    fl->a->mat = input;
 }
 
 // ========== Forward ==========
 
 void lyr_forward(Layer *previous, Layer *current)
 {
-    mat_free(current->act, true);
-    current->act = mat_multiply(previous->act, current->weights);
-    mat_apply(mth_sigmoid_prime, current->act);
+    mat_free(current->a, true);
+    mat_free(current->z, true);
+    current->z = mat_multiply(previous->a, current->w);
+    current->a = mat_cpy(current->z);
+    mat_apply(mth_sigmoid_prime, current->a);
 }
 
 void net_forward(Network *net)
@@ -97,39 +101,76 @@ void net_forward(Network *net)
 
 Vector *net_backward(Network *net, Matrix *y)
 {
-    Layer *ll = (Layer *) vec_get(net->layers, net->layers->size - 1);
-    mat_substract_ip(y, ll->act);
-
     Vector *delta = vec_create(net->layers->size - 1);
-
-    Layer *cur = (Layer *) vec_get(net->layers, net->layers->size - 1);
-    Matrix *act = mat_cpy(cur->act);
-    mat_apply(mth_sigmoid_prime, act);
-    Matrix *dlt = ary_multiply(y, act);
-    mat_free(act, true);
+    Layer *ll = (Layer *) vec_get(net->layers, net->layers->size - 1);
+    mat_substract_ip(y, ll->a);
+    for(int i = 0; i < y->height * y->width; ++i)
+        y->mat[i] *= -1;
+    Matrix *z = mat_cpy(ll->z);
+    mat_apply(mth_sigmoid_prime, z);
+    Matrix *dlt = ary_multiply(y, z);
+    mat_free(z, true);
     Layer *prev = (Layer *) vec_get(net->layers, net->layers->size - 2);
-    act = mat_transpose(prev->act);
-    vec_add(delta, mat_multiply(act, dlt));
-    mat_free(act, true);
-    mat_free(dlt, true);
-
-    int di = 0;
+    Matrix *aT = mat_transpose(prev->a);
+    vec_add(delta, mat_multiply(aT, dlt));
+    mat_free(aT, true);
     for(int i = net->layers->size - 2; i > 0; --i)
     {
-        Layer *nl = (Layer *) vec_get(net->layers, i + 1);
-        Matrix *wt = mat_transpose(nl->weights);
-        Matrix *yc = mat_multiply((Matrix *) vec_get(delta, di++), wt);
-        mat_free(wt, true);
         Layer *cur = (Layer *) vec_get(net->layers, i);
-        Matrix *act = mat_transpose(cur->act);
-        Matrix *dlt = ary_multiply(yc, act);
-        mat_free(act, true);
-        mat_free(yc, true);
-        Layer *pl = (Layer *) vec_get(net->layers, i - 1);
-        Matrix *x = mat_transpose(pl->act);
-        vec_add(delta, mat_multiply(x, dlt));
+        Matrix *wT = mat_transpose(cur->w);
+        Matrix *yi = mat_multiply(dlt, wT);
+        mat_free(wT, true);
         mat_free(dlt, true);
-        mat_free(x, true);
+        z = mat_cpy(cur->z);
+        mat_apply(mth_sigmoid_prime, z);
+        dlt = ary_multiply(yi, z);
+        mat_free(z, true);
+        mat_free(yi, true);
+        Layer *prev = (Layer *) vec_get(net->layers, i - 1);
+        aT = mat_transpose(prev->a);
+        vec_add(delta, mat_multiply(aT, dlt));
+        mat_free(aT, true);
     }
+    mat_free(dlt, true);
     return delta;
+}
+
+float net_cost(Network *net, Matrix *y)
+{
+    Layer *ll = (Layer *) vec_get(net->layers, net->layers->size - 1);
+    float cost = 0;
+    for(int i = 0; i < y->width * y->height; ++i)
+    {
+        float delta = y->mat[i] - ll->a->mat[i];
+        cost += delta * delta;
+    }
+    return .5 * cost;
+}
+
+
+Vector *net_numGrad(Network *net, Matrix *y)
+{
+    float e = .001;
+    Vector *grads = vec_create(net->layers->size - 1);
+    for(int i = 1; i < net->layers->size; ++i)
+    {
+        Layer *lyr = (Layer *) vec_get(net->layers, i);
+        int h = lyr->w->height;
+        int w = lyr->w->width;
+        Matrix *grad = mat_create(w, h, NULL);
+        for(int iw = 0; iw < h * w; ++iw)
+        {
+            lyr->w->mat[iw] += e;
+            net_forward(net);
+            float lossB = net_cost(net, y);
+            lyr->w->mat[iw] -= 2 * e;
+            net_forward(net);
+            float lossA = net_cost(net, y);
+            lyr->w->mat[iw] += e;
+            grad->mat[iw] = (lossB - lossA) / (2 * e);
+        }
+        vec_add(grads, grad);
+    }
+    net_forward(net);
+    return grads;
 }
