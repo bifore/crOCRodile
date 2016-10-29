@@ -11,6 +11,10 @@ MAIN      = src/main.c
 
 SRC       = src/io/image.c         \
             src/processing/canny.c \
+            src/util/maths.c       \
+            src/util/vector.c      \
+            src/util/string.c      \
+            src/ann/network.c      \
 
 BUILD_DIR = build
 
