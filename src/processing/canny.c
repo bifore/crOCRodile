@@ -1,5 +1,3 @@
-//TODO normalize contrast
-
 #include "canny.h"
 
 #define PI 3.14159265358979323846
@@ -11,6 +9,7 @@ void init_array(Canny_filter *cf)
 {
     int size = cf->w * cf->h;
     cf->data = (int *) malloc(size * sizeof(int));
+    cf->lumin = (int *) malloc(size * sizeof(int));
     cf->magnitude = (int *) malloc(size * sizeof(int));
     cf->dir = (float *) malloc(size * sizeof(float));
     cf->x_conv = (float *) malloc(size * sizeof(float));
@@ -22,6 +21,7 @@ void init_array(Canny_filter *cf)
 void canny_free(Canny_filter *cf)
 {
     free(cf->data);
+    free(cf->lumin);
     free(cf->magnitude);
     free(cf->dir);
     free(cf->x_conv);
@@ -41,13 +41,15 @@ void read_lumi(Canny_filter *cf)
         {
             guchar *p = ori + y * row_size + x * n;
             int i = y * cf->w + x;
-            cf->data[i] = roundf(.299 * p[0] + .587 * p[1] + .114 * p[2]);
+            int luminescence = (int) roundf((float) (.299 * p[0] + .587 * p[1] + .114 * p[2]));
+            cf->data[i] = luminescence;
+            cf->lumin[i] = luminescence;
         }
 }
 
 float gaussian(float x, float sig)
 {
-    return expf(- (x * x) / (2. * sig * sig));
+    return expf((float) (-(x * x) / (2. * sig * sig)));
 }
 
 float dist(float x, float y)
@@ -64,20 +66,20 @@ float absf(float x)
 
 void comp_gradient(Canny_filter *cf, float k_raduis, float k_width)
 {
-    float *kernel = (float *) malloc(k_width * sizeof(float));
-    float *k_diff = (float *) malloc(k_width * sizeof(float));
-    float k_div = 2. * PI * k_raduis * k_raduis;
+    float *kernel = (float *) malloc((size_t) (k_width * sizeof(float)));
+    float *k_diff = (float *) malloc((size_t) (k_width * sizeof(float)));
+    float k_div = (float) (2. * PI * k_raduis * k_raduis);
     for(int i = 0; i < k_width; ++i)
     {
         float g1 = gaussian(i, k_raduis);
         if(g1 <= GAUSSIAN_CUT_OFF && i >= 2)
             break;
-        float g2 = gaussian(i - .5, k_raduis);
-        float g3 = gaussian(i + .5, k_raduis);
-        kernel[i] = (g1 + g2 + g3) / 3. / k_div;
+        float g2 = gaussian((float) (i - .5), k_raduis);
+        float g3 = gaussian((float) (i + .5), k_raduis);
+        kernel[i] = (float) ((g1 + g2 + g3) / 3. / k_div);
         k_diff[i] = g3 - g2;
     }
-    int init_x = k_width - 1;
+    int init_x = (int) (k_width - 1);
     int init_y = cf->w * init_x;
     int max_x = cf->w - init_x;
     int max_y = cf->w * (cf->h - init_x);
@@ -102,16 +104,16 @@ void comp_gradient(Canny_filter *cf, float k_raduis, float k_width)
     for(int x = init_x; x < max_x; ++x)
         for(int y = init_y; y < max_y; y += cf->w)
         {
-            float s = 0.;
+            float s = (float) 0.;
             int i = x + y;
             for(int a = 1; a < k_width; ++a)
                 s += k_diff[a] * (cf->y_conv[i - a] - cf->y_conv[i + a]);
             cf->x_gradient[i] = s;
         }
-    for(int x = k_width; x < cf->w - k_width; ++x)
+    for (int x = (int) k_width; x < cf->w - k_width; ++x)
         for(int y = init_y; y < max_y; y += cf->w)
         {
-            float s = 0.;
+            float s = (float) 0.;
             int i = x + y;
             int yo = cf->w;
             for(int a = 1; a < k_width; ++a)
@@ -121,10 +123,10 @@ void comp_gradient(Canny_filter *cf, float k_raduis, float k_width)
             }
             cf->y_gradient[i] = s;
         }
-    init_x = k_width;
-    init_y = cf->w - k_width;
-    max_x = cf->w * k_width;
-    max_y = cf->w * (cf->h - k_width);
+    init_x = (int) k_width;
+    init_y = (int) (cf->w - k_width);
+    max_x = (int) (cf->w * k_width);
+    max_y = (int) (cf->w * (cf->h - k_width));
     for(int x = init_x; x < max_x; ++x)
         for(int y = init_y; y < max_y; y += cf->w)
         {
@@ -162,7 +164,7 @@ void comp_gradient(Canny_filter *cf, float k_raduis, float k_width)
                && t > absf(xg * mnw + (yg - xg) * mn))
             {
                 if(gm >= MAGNITUDE_LIMIT)
-                    cf->magnitude[i] = MAGNITUDE_LIMIT * MAGNITUDE_SCALE;
+                    cf->magnitude[i] = (int) (MAGNITUDE_LIMIT * MAGNITUDE_SCALE);
                 else
                     cf->magnitude[i] = (int) (MAGNITUDE_SCALE * gm);
                 cf->dir[i] = atan2f(yg, xg);
@@ -226,8 +228,8 @@ Canny_filter *canny(GdkPixbuf *image)
     float gaussianKernelRaduis = 2;
     float gaussianKernelWidth = 16;
     comp_gradient(cf, gaussianKernelRaduis, gaussianKernelWidth);
-    int low = roundf(0.5 * MAGNITUDE_SCALE);
-    int high = round(1.0 * MAGNITUDE_SCALE);
+    int low = (int) roundf((float) (0.5 * MAGNITUDE_SCALE));
+    int high = (int) round(1.0 * MAGNITUDE_SCALE);
     perf_hysteresis(cf, low, high);
     comp_edges(cf);
     return cf;
