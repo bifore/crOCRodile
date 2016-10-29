@@ -33,7 +33,13 @@ int main()
     printf("character number -> %i\n", chars->size);
 
     for(int i = 0; i < chars->size; ++i)
-        img_free((Image *) vec_get(chars, i));
+    {
+        Image *img = (Image *) vec_get(chars, i);
+        Image *norm = img_normalize(img, 20);
+        img_print(norm);
+        img_free(img);
+        img_free(norm);
+    }
     vec_free(chars, false);
 
     img_free(original);
