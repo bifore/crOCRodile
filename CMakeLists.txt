@@ -18,7 +18,6 @@ set(LIBRARIES
 message("-------- LINKING LIBRARIES ---------")
 foreach (LIB ${LIBRARIES})
     message(" ---- LOOKING FOR ${LIB}")
-
     pkg_check_modules(${LIB} REQUIRED ${LIB})
     include_directories(${${LIB}_INCLUDE_DIRS})
     link_directories(${${LIB}_LIBRARY_DIRS})
