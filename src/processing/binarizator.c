@@ -4,6 +4,7 @@
 
 #include <limits.h>
 #include "binarizator.h"
+#include "../util/image.h"
 
 int average_color(guchar *p);
 
@@ -36,9 +37,8 @@ Image *binarize(GdkPixbuf *file, float percent_tolerance)
     img->y_root = 0;
 
     img->raster = (bool *) malloc(img->width * img->height * sizeof(bool));
-    for (int y = 0; y < img->height; ++y)
-        for (int x = 0; x < img->width; ++x)
-        {
+    for (int y = 0; y < img->height; ++y) {
+        for (int x = 0; x < img->width; ++x) {
             guchar *p = origin + y * row_size + x * num_bytes;
             binarize_around(
                     img,
@@ -52,6 +52,13 @@ Image *binarize(GdkPixbuf *file, float percent_tolerance)
                     percent_tolerance
             );
         }
+
+        bool is_true = false;
+        for (int i = 0; i < img->width; ++i) {
+            is_true |= img->raster[y*img->width+i];
+        }
+        //printf("Line %d raster : %s\n",y, is_true ? "true" : "false");
+    }
     return img;
 }
 
@@ -66,7 +73,6 @@ void binarize_around(
         int col_s,
         float percent_tolerance)
 {
-    printf("Binarizing around : %d, %d\n", x, y);
     guchar *p_ul = get_point_delta(ori, -1, -1, row_s, col_s);
     guchar *p_uc = get_point_delta(ori, 0, -1, row_s, col_s);
     guchar *p_ur = get_point_delta(ori, +1, -1, row_s, col_s);
