@@ -29,9 +29,16 @@ Image *img_create(GdkPixbuf *file)
     img->trueWidth = img->width;
     img->trueHeight = img->height;
     img->character = '\0';
+<<<<<<< Updated upstream
     img->raster = (bool *) malloc(sizeof(bool) * img->width * img->height);
     for (int y = 0; y < img->height; ++y)
         for (int x = 0; x < img->width; ++x)
+=======
+    img->font = -1;
+    img->raster = (char *) malloc(sizeof(char) * img->width * img->height);
+    for(int y = 0; y < img->height; ++y)
+        for(int x = 0; x < img->width; ++x)
+>>>>>>> Stashed changes
         {
             guchar *p = ori + y * row_size + x * n;
             int i = y * img->width + x;
@@ -58,7 +65,8 @@ Image *img_crop(Image *img, int x, int y, int width, int height)
     result->character = img->character;
     result->x_root = img->x_root + x;
     result->y_root = img->y_root + y;
-    result->raster = (bool *) malloc(sizeof(bool) * pixel_nb);
+    result->font = img->font;
+    result->raster = (char *) malloc(sizeof(char) * pixel_nb);
     for (int yi = 0; yi < height; ++yi)
     {
         for (int xi = 0; xi < width; ++xi)
@@ -79,15 +87,16 @@ void img_crop_ip(Image *img, int x, int y, int width, int height)
     img->trueHeight = height;
     img->x_root = result->x_root;
     img->y_root = result->y_root;
+    img->font = result->font;
     free(img->raster);
     img->raster = result->raster;
     free(result);
 }
 
-Image *img_crop_border(Image *img, bool ip)
+Image *img_crop_border(Image *img, int ip)
 {
     int y = 0, x = 0;
-    bool is_empty = true;
+    int is_empty = true;
     while (is_empty && y < img->height)
     {
         for (int x = 0; x < img->width; ++x)
@@ -177,7 +186,7 @@ void img_print(const Image *img)
 Image *img_extract_character(Image *img)
 {
     // search an entry point
-    bool as_find = false;
+    int as_find = false;
     int xa = 0, ya = 0;
     for (int y = 0; y < img->height && !as_find; ++y)
     {
@@ -204,7 +213,9 @@ Image *img_extract_character(Image *img)
     character->character = img->character;
     character->x_root = img->x_root;
     character->y_root = img->y_root;
-    character->raster = calloc((size_t) (img->width * img->height), sizeof(bool));
+    character->font = img->font;
+    int size = img->width * img->height;
+    character->raster = calloc((size_t) (size), sizeof(char));
     for (int i = 0; i < pixels->size; ++i)
         character->raster[vec_get_int(pixels, i)] = true;
     img_crop_border(character, true);
@@ -246,7 +257,8 @@ Image *img_normalize(Image *img, int size)
     result->x_root = img->x_root;
     result->y_root = img->y_root;
     result->character = img->character;
-    result->raster = calloc((size_t) (size * size), sizeof(bool));
+    result->font = img->font;
+    result->raster = calloc((size_t) (size * size), sizeof(char));
     float x_factor = (float) img->width / size;
     float y_factor = (float) img->height / size;
     for (int y = 0; y < size; ++y)

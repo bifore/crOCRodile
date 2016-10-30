@@ -31,10 +31,16 @@ void img_save(const guchar *d, const char *name, int w, int h)
     g_object_unref(img);
 }
 
-Image *img_load_IMAGE(const char *name)
+/*Image *img_load_IMAGE(const char *name)
 {
+<<<<<<< Updated upstream
     return img_create(img_load(name));
 }
+=======
+    errx(-1, "Broken for now");
+    //return img_create(img_load(name));
+}*/
+>>>>>>> Stashed changes
 
 void img_save_IMAGE(const Image *img, const char *name, int w, int h)
 {
@@ -51,7 +57,7 @@ void img_save_IMAGE(const Image *img, const char *name, int w, int h)
 void img_save_bin(Image *img, const char *name)
 {
     FILE *file = fopen(name, "w");
-    fwrite(img->raster, sizeof(int), 20 * 20, file);
+    fwrite(img->raster, sizeof(char), 20 * 20 * sizeof(char), file);
     fclose(file);
 }
 
@@ -62,9 +68,13 @@ Image *img_read_bin(const char *name)
     img->y_root = -1;
     img->height = 20;
     img->width = 20;
+<<<<<<< Updated upstream
     img->raster = (bool *) (int *) malloc(20 * 20 * sizeof(int));
+=======
+    img->raster = (char *) malloc(20 * 20 * sizeof(char));
+>>>>>>> Stashed changes
     FILE *file = fopen(name, "r");
-    fread(img->raster, sizeof(int), 20 * 20, file);
+    fread(img->raster, sizeof(char), 20 * 20 * sizeof(char), file);
     fclose(file);
     return img;
 }

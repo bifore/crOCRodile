@@ -7,14 +7,15 @@
 
 typedef struct
 {
+    char character;
     int width;
     int height;
-    bool *raster;
+    char *raster;
     int x_root;
     int y_root;
     int trueWidth;
     int trueHeight;
-    char character;
+    int font;
 } Image;
 
 Image *img_create(GdkPixbuf *bmp);
@@ -27,7 +28,7 @@ Image *img_crop(Image *img, int x, int y, int width, int height);
 
 void img_crop_ip(Image *img, int x, int y, int width, int height);
 
-Image *img_crop_border(Image *img, bool ip);
+Image *img_crop_border(Image *img, int ip);
 
 void img_print(const Image *img);
 
