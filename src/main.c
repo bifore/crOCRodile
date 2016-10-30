@@ -3,11 +3,12 @@
 #include "util/image.h"
 
 #include "ann/network.h"
+#include "defaults.h"
 
 
 int main()
 {
-    GdkPixbuf *img = img_load("Lorem-Droid-Mono-justify.bmp");
+    GdkPixbuf *img = img_load(IMAGE_LOREM ".bmp");
     Canny_filter *cf = canny(img);
     guchar *data = (guchar *) malloc(sizeof(guchar) * cf->w * cf->h * 3);
     int a = 0;
@@ -17,7 +18,7 @@ int main()
                 data[++a] = 255;
             else
                 data[++a] = 0;
-    img_save(data, "normal_text_edges.png", cf->w, cf->h);
+    img_save(data, IMAGE_LOREM IMAGE_FINAL_SUFFIX, cf->w, cf->h);
     free(data);
 
     Image * original = img_create(img);
