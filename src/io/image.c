@@ -1,6 +1,8 @@
 #include <err.h>
 #include "image.h"
 
+#include "../util/image.h"
+
 GdkPixbuf *img_load(const char *name)
 {
     GError *e = NULL;
@@ -47,5 +49,26 @@ void img_save_IMAGE(const Image *img, const char *name, int w, int h)
         for (int u = 0; u < 3; ++u)
             data[++a] = (guchar) (img->raster[i] ? 255 : 0);
     img_save(data, name, w, h);
+}
+
+void img_save_bin(Image *img, const char *name)
+{
+    FILE *file = fopen(name, "w");
+    fwrite(img->raster, sizeof(int), 20 * 20, file);
+    fclose(file);
+}
+
+Image *img_read_bin(const char *name)
+{
+    Image *img = (Image *) malloc(sizeof(Image));
+    img->x_root = -1;
+    img->y_root = -1;
+    img->height = 20;
+    img->width = 20;
+    img->raster = (int *) malloc(20 * 20 * sizeof(int));
+    FILE *file = fopen(name, "r");
+    fread(img->raster, sizeof(int), 20 * 20, file);
+    fclose(file);
+    return img;
 }
 

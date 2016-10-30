@@ -75,8 +75,8 @@ void net_addLayer(Network *net, int nbUnit)
 void net_loadInput(Network *net, float *input)
 {
     Layer *fl = (Layer *) vec_get(net->layers, 0);
-    free(fl->a->mat);
-    fl->a->mat = input;
+    mat_free(fl->a, true);
+    fl->a = mat_create(fl->z->width, fl->z->height, input);
 }
 
 // ========== Forward ==========
@@ -87,7 +87,7 @@ void lyr_forward(Layer *previous, Layer *current)
     mat_free(current->z, true);
     current->z = mat_multiply(previous->a, current->w);
     current->a = mat_cpy(current->z);
-    mat_apply(mth_sigmoid_prime, current->a);
+    mat_apply(mth_sigmoid, current->a);
 }
 
 void net_forward(Network *net)
@@ -159,13 +159,14 @@ Vector *net_numGrad(Network *net, Matrix *y)
         Matrix *grad = mat_create(w, h, NULL);
         for (int iw = 0; iw < h * w; ++iw)
         {
-            lyr->w->mat[iw] += e;
+            float t = lyr->w->mat[iw];
+            lyr->w->mat[iw] = t + e;
             net_forward(net);
             float lossB = net_cost(net, y);
-            lyr->w->mat[iw] -= 2 * e;
+            lyr->w->mat[iw] = t - e;
             net_forward(net);
             float lossA = net_cost(net, y);
-            lyr->w->mat[iw] += e;
+            lyr->w->mat[iw] = t;
             grad->mat[iw] = (lossB - lossA) / (2 * e);
         }
         vec_add(grads, grad);

@@ -7,11 +7,12 @@
 #include "../util/image.h"
 
 GdkPixbuf *img_load(const char *name);
-
 void img_save(const guchar *data, const char *name, int w, int h);
 
 Image *img_load_IMAGE(const char *name);
-
 void img_save_IMAGE(const Image *img, const char *name, int w, int h);
+
+void img_save_bin(Image *img, const char *name);
+Image *img_read_bin(const char *name);
 
 #endif /* !IO_IMAGE_H_ */
