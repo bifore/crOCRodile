@@ -4,13 +4,14 @@
 
 int main()
 {
-    Image *img_binarized = img_load_IMAGE(TEST_SET_FOLDER TEST_SET_IMAGE_FULLTEST_NOSUFFIX ".jpg");
+    Image *img_binarized = img_load_IMAGE(TEST_SET_FOLDER TEST_SET_IMAGE_ROTATION_NOSUFFIX ".jpg");
     img_crop_border(img_binarized, true);
-    img_save_IMAGE(
-            img_binarized,
-            TEST_SET_FOLDER TEST_SET_OUT_FOLDER TEST_SET_IMAGE_FULLTEST_NOSUFFIX ".jpg",
-            img_binarized->width,
-            img_binarized->height
-    );
+    printf("Suggested orientation factor degrees : %d\n", img_get_orientation_factor(img_binarized));
+    //img_save_IMAGE(
+    //        img_binarized,
+    //        TEST_SET_FOLDER TEST_SET_OUT_FOLDER TEST_SET_IMAGE_ROTATION_NOSUFFIX ".jpg",
+    //        img_binarized->width,
+    //        img_binarized->height
+    //);
     return 0;
 }

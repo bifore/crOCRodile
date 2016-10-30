@@ -1,3 +1,6 @@
+#define PI 3.14159265358979323846
+
+#include <math.h>
 #include "image.h"
 
 Image *img_create(GdkPixbuf *file)
@@ -245,3 +248,54 @@ Image *img_normalize(Image *img, int size)
     }
     return result;
 }
+
+int img_get_orientation_factor(Image *image)
+{
+    int topx = 0;
+    int lefty = 0;
+
+    for (int i = 0; i < image->width; ++i)
+    {
+        if (image->raster[i])
+        {
+            topx = i;
+            break;
+        }
+    }
+    for (int i = 0; i < image->height; ++i)
+    {
+        if (image->raster[i * image->width])
+        {
+            lefty = i;
+            break;
+        }
+    }
+
+    printf("Found left intersection : %d\n", lefty);
+    printf("Found top intersection : %d\n", topx);
+    double sin = (double) lefty / (double) topx;
+    double rotation_radians = asin(sin);
+    return (int) ((rotation_radians * (double) 180.) / (double) PI);
+}
+
+Image *img_autorotate(Image *img)
+{
+    int best_angle = img_get_orientation_factor(img);
+    return img_rotate(img, best_angle);
+}
+
+Image *img_rotate(Image *img, int degrees)
+{
+    Image *rotated = malloc(sizeof(Image));
+    rotated->width = img->width;
+    rotated->height = img->height;
+    rotated->trueHeight = img->trueHeight;
+    rotated->trueWidth = img->trueWidth;
+    rotated->x_root = img->x_root;
+    rotated->y_root = img->y_root;
+    rotated->raster = malloc(rotated->width * rotated->height * sizeof(bool));
+
+
+}
+
+

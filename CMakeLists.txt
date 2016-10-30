@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 3.6)
 project(crOCRodile)
 find_package(PkgConfig REQUIRED)
 
-set(CMAKE_C_FLAGS
-        "${CMAKE_C_FLAGS} -Wall -Wextra -std=c99 -g -lm")
+set(CMAKE_C_FLAGS "-Wall -Wextra -std=c99 -g -lm")
 
 # C SOURCE FILES
 file(GLOB_RECURSE SOURCE_FILES "src/*.c" "src/*.h")
