@@ -3,7 +3,6 @@
 */
 
 #include <limits.h>
-#include <glib/gtypes.h>
 #include "binarizator.h"
 
 int average_color(guchar *p);

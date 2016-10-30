@@ -33,12 +33,12 @@ endforeach ()
 
 # RESOURCES LIST
 set(RESOURCES
-        resources)
+        res)
 
 # RESOURCES LINKER
 foreach (RESOURCE ${RESOURCES})
     message("LINKING RESOURCE : ${RESOURCE}")
     add_custom_command(TARGET crOCRodile POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_SOURCE_DIR}/${RESOURCE} $<TARGET_FILE_DIR:crOCRodile>)
+            ${CMAKE_SOURCE_DIR}/${RESOURCE} $<TARGET_FILE_DIR:crOCRodile>/${RESOURCE})
 endforeach ()
