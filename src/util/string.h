@@ -5,6 +5,6 @@
 #include <string.h>
 #include <stdarg.h>
 
-char * str_con(int nb, ...);
+char *str_con(int nb, ...);
 
 #endif /* !UTILS_STRING_H_ */

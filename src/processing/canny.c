@@ -7,15 +7,25 @@
 #define NORMALIZE_CONTRAST 0
 
 void normalizeContrast(Canny_filter *cf);
+
 void init_array(Canny_filter *cf);
+
 void read_lumi(Canny_filter *cf);
+
 void read_lumi(Canny_filter *cf);
+
 float gaussian(float x, float sig);
+
 float dist(float x, float y);
+
 float absf(float x);
+
 void comp_gradient(Canny_filter *cf, float k_raduis, float k_width);
+
 void follow(Canny_filter *cf, int xi, int yi, int ii, int t);
+
 void perf_hysteresis(Canny_filter *cf, int low, int hight);
+
 void comp_edges(Canny_filter *cf);
 
 void canny_free(Canny_filter *cf);
@@ -51,8 +61,8 @@ void read_lumi(Canny_filter *cf)
     int n = gdk_pixbuf_get_has_alpha(cf->image) ? 4 : 3;
     int row_size = gdk_pixbuf_get_rowstride(cf->image);
     guchar *ori = gdk_pixbuf_get_pixels(cf->image);
-    for(int y = 0; y < cf->h; ++y)
-        for(int x = 0; x < cf->w; ++x)
+    for (int y = 0; y < cf->h; ++y)
+        for (int x = 0; x < cf->w; ++x)
         {
             guchar *p = ori + y * row_size + x * n;
             int i = y * cf->w + x;
@@ -74,7 +84,7 @@ float dist(float x, float y)
 
 float absf(float x)
 {
-    if(x < 0)
+    if (x < 0)
         return -x;
     return x;
 }
@@ -84,10 +94,10 @@ void comp_gradient(Canny_filter *cf, float k_raduis, float k_width)
     float *kernel = (float *) malloc((size_t) (k_width * sizeof(float)));
     float *k_diff = (float *) malloc((size_t) (k_width * sizeof(float)));
     float k_div = (float) (2. * PI * k_raduis * k_raduis);
-    for(int i = 0; i < k_width; ++i)
+    for (int i = 0; i < k_width; ++i)
     {
         float g1 = gaussian(i, k_raduis);
-        if(g1 <= GAUSSIAN_CUT_OFF && i >= 2)
+        if (g1 <= GAUSSIAN_CUT_OFF && i >= 2)
             break;
         float g2 = gaussian((float) (i - .5), k_raduis);
         float g3 = gaussian((float) (i + .5), k_raduis);
@@ -98,15 +108,15 @@ void comp_gradient(Canny_filter *cf, float k_raduis, float k_width)
     int init_y = cf->w * init_x;
     int max_x = cf->w - init_x;
     int max_y = cf->w * (cf->h - init_x);
-    for(int x = init_x; x < max_x; ++x)
-        for(int y = init_y; y < max_y; y += cf->w)
+    for (int x = init_x; x < max_x; ++x)
+        for (int y = init_y; y < max_y; y += cf->w)
         {
             int i = x + y;
             float sum_x = cf->data[i] * kernel[0];
             float sum_y = sum_x;
             int xo = 1;
             int yo = cf->w;
-            for(; xo < k_width; )
+            for (; xo < k_width;)
             {
                 sum_y += kernel[xo] * (cf->data[i - yo] + cf->data[i + yo]);
                 sum_x += kernel[xo] * (cf->data[i - xo] + cf->data[i + xo]);
@@ -116,22 +126,22 @@ void comp_gradient(Canny_filter *cf, float k_raduis, float k_width)
             cf->x_conv[i] = sum_x;
             cf->y_conv[i] = sum_y;
         }
-    for(int x = init_x; x < max_x; ++x)
-        for(int y = init_y; y < max_y; y += cf->w)
+    for (int x = init_x; x < max_x; ++x)
+        for (int y = init_y; y < max_y; y += cf->w)
         {
             float s = (float) 0.;
             int i = x + y;
-            for(int a = 1; a < k_width; ++a)
+            for (int a = 1; a < k_width; ++a)
                 s += k_diff[a] * (cf->y_conv[i - a] - cf->y_conv[i + a]);
             cf->x_gradient[i] = s;
         }
     for (int x = (int) k_width; x < cf->w - k_width; ++x)
-        for(int y = init_y; y < max_y; y += cf->w)
+        for (int y = init_y; y < max_y; y += cf->w)
         {
             float s = (float) 0.;
             int i = x + y;
             int yo = cf->w;
-            for(int a = 1; a < k_width; ++a)
+            for (int a = 1; a < k_width; ++a)
             {
                 s += k_diff[a] * (cf->x_conv[i - yo] - cf->x_conv[i + yo]);
                 yo += cf->w;
@@ -142,8 +152,8 @@ void comp_gradient(Canny_filter *cf, float k_raduis, float k_width)
     init_y = (int) (cf->w - k_width);
     max_x = (int) (cf->w * k_width);
     max_y = (int) (cf->w * (cf->h - k_width));
-    for(int x = init_x; x < max_x; ++x)
-        for(int y = init_y; y < max_y; y += cf->w)
+    for (int x = init_x; x < max_x; ++x)
+        for (int y = init_y; y < max_y; y += cf->w)
         {
             int i = x + y;
             int in = i - cf->w;
@@ -166,25 +176,24 @@ void comp_gradient(Canny_filter *cf, float k_raduis, float k_width)
             float msw = dist(cf->x_gradient[isw], cf->y_gradient[isw]);
             float mse = dist(cf->x_gradient[ise], cf->y_gradient[ise]);
             float t;
-            if(xg * yg <= 0.
-               ? absf(xg) >= absf(yg)
-               ? (t = absf(xg * gm)) >= absf(yg * mne - (xg + yg) * me)
-               && t > absf(yg * msw - (xg + yg) * mw)
-               : (t = absf(yg * gm)) >= absf(xg * mne - (yg + xg) * mn)
-               && t > absf(xg * msw - (yg + xg) * ms)
-               : absf(xg) >= absf(yg)
-               ? (t = absf(xg * gm)) >= absf(yg * mse + (xg - yg) * me)
-               && t > absf(yg * mnw + (xg - yg) * mw)
-               : (t = absf(yg * gm)) >= absf(xg * mse + (yg - xg) * ms)
-               && t > absf(xg * mnw + (yg - xg) * mn))
+            if (xg * yg <= 0.
+                ? absf(xg) >= absf(yg)
+                  ? (t = absf(xg * gm)) >= absf(yg * mne - (xg + yg) * me)
+                    && t > absf(yg * msw - (xg + yg) * mw)
+                  : (t = absf(yg * gm)) >= absf(xg * mne - (yg + xg) * mn)
+                    && t > absf(xg * msw - (yg + xg) * ms)
+                : absf(xg) >= absf(yg)
+                  ? (t = absf(xg * gm)) >= absf(yg * mse + (xg - yg) * me)
+                    && t > absf(yg * mnw + (xg - yg) * mw)
+                  : (t = absf(yg * gm)) >= absf(xg * mse + (yg - xg) * ms)
+                    && t > absf(xg * mnw + (yg - xg) * mn))
             {
-                if(gm >= MAGNITUDE_LIMIT)
+                if (gm >= MAGNITUDE_LIMIT)
                     cf->magnitude[i] = (int) (MAGNITUDE_LIMIT * MAGNITUDE_SCALE);
                 else
                     cf->magnitude[i] = (int) (MAGNITUDE_SCALE * gm);
                 cf->dir[i] = atan2f(yg, xg);
-            }
-            else
+            } else
             {
                 cf->magnitude[i] = 0;
                 cf->dir[i] = NAN;
@@ -199,12 +208,12 @@ void follow(Canny_filter *cf, int xi, int yi, int ii, int t)
     int xb = xi == cf->w - 1 ? xi : xi - 1;
     int yb = yi == cf->h - 1 ? yi : yi - 1;
     cf->data[ii] = cf->magnitude[ii];
-    for(int x = xa; x <= xb; ++x)
-        for(int y = ya; y <= yb; ++y)
+    for (int x = xa; x <= xb; ++x)
+        for (int y = ya; y <= yb; ++y)
         {
             int i = x + y * cf->w;
             int b = y != ya || x != xa;
-            if(b && cf->data[i] == 0 && cf->magnitude[i] >= t)
+            if (b && cf->data[i] == 0 && cf->magnitude[i] >= t)
             {
                 follow(cf, x, y, i, t);
                 return;
@@ -214,13 +223,13 @@ void follow(Canny_filter *cf, int xi, int yi, int ii, int t)
 
 void perf_hysteresis(Canny_filter *cf, int low, int hight)
 {
-    for(int i = 0; i < cf->w * cf->h; ++i)
+    for (int i = 0; i < cf->w * cf->h; ++i)
         cf->data[i] = 0;
     int offset = 0;
-    for(int y = 0; y < cf->h; ++y)
-        for(int x = 0; x < cf->w; ++x)
+    for (int y = 0; y < cf->h; ++y)
+        for (int x = 0; x < cf->w; ++x)
         {
-            if(cf->data[offset] == 0 && cf->magnitude[offset] >= hight)
+            if (cf->data[offset] == 0 && cf->magnitude[offset] >= hight)
                 follow(cf, x, y, offset, low);
             ++offset;
         }
@@ -228,29 +237,33 @@ void perf_hysteresis(Canny_filter *cf, int low, int hight)
 
 void comp_edges(Canny_filter *cf)
 {
-    for(int i = 0; i < cf->w * cf->h; ++i)
+    for (int i = 0; i < cf->w * cf->h; ++i)
         cf->data[i] = cf->data[i] > 0;
 }
 
 void normalizeContrast(Canny_filter *cf)
 {
     int histogram[256];
-    for (int i = 0; i < cf->w * cf-> h; ++i) {
+    for (int i = 0; i < cf->w * cf->h; ++i)
+    {
         ++histogram[cf->data[i]];
     }
     int remap[256];
     int sum = 0;
     int j = 0;
-    for (int i = 0; i < 256; ++i) {
+    for (int i = 0; i < 256; ++i)
+    {
         sum += histogram[i];
-        int target = sum*255/(cf->w * cf->h);
-        for (int k = j+1; k <=target; k++) {
+        int target = sum * 255 / (cf->w * cf->h);
+        for (int k = j + 1; k <= target; k++)
+        {
             remap[k] = i;
         }
         j = target;
     }
 
-    for (int i = 0; i < (cf->w * cf->h); i++) {
+    for (int i = 0; i < (cf->w * cf->h); i++)
+    {
         cf->data[i] = remap[cf->data[i]];
     }
 }
@@ -272,9 +285,9 @@ Canny_filter *canny(GdkPixbuf *image)
     int high = (int) round(1.0 * MAGNITUDE_SCALE);
     perf_hysteresis(cf, low, high);
     comp_edges(cf);
-    for(int y = 0; y < cf->h; ++y)
-        for(int x = 0; x < cf->w; ++x)
-            if(x == 15 || y == 15 || x == cf->w - 16 || y == cf->h - 16)
+    for (int y = 0; y < cf->h; ++y)
+        for (int x = 0; x < cf->w; ++x)
+            if (x == 15 || y == 15 || x == cf->w - 16 || y == cf->h - 16)
                 cf->data[y * cf->w + x] = 0;
     return cf;
 }
