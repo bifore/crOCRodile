@@ -4,8 +4,7 @@
 
 int main()
 {
-    GdkPixbuf *img = img_load(TEST_SET_FOLDER TEST_SET_IMAGE_ROTATION_NOSUFFIX ".jpg");
-    Image *img_binarized = img_create(img);
+    Image *img_binarized = img_load_IMAGE(TEST_SET_FOLDER TEST_SET_IMAGE_ROTATION_NOSUFFIX ".jpg");
     img_crop_border(img_binarized, true);
     img_save_IMAGE(
             img_binarized,

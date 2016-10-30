@@ -9,10 +9,8 @@ int average_color(guchar *p);
 
 guchar *get_point_delta(guchar *orig, int dx, int dy, int row_s, int col_s);
 
-void binarize_around(Image *image,
-                     guchar *ori,
+void binarize_around(guchar *ori,
                      bool *raster,
-                     int len,
                      int y,
                      int row_s,
                      int x,
@@ -38,10 +36,8 @@ Image *binarize(GdkPixbuf *file, float percent_tolerance)
         for (int x = 0; x < img->width; ++x) {
             guchar *p = origin + y * row_s + x * col_s;
             binarize_around(
-                    img,
                     p,
                     img->raster,
-                    img->width * img->height,
                     y,
                     img->height,
                     x,
@@ -54,10 +50,8 @@ Image *binarize(GdkPixbuf *file, float percent_tolerance)
 }
 
 void binarize_around(
-        Image *final,
         guchar *ori,
         bool *raster,
-        int len,
         int y,
         int row_s,
         int x,

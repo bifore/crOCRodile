@@ -1,7 +1,5 @@
-#include <err.h>
-#include "image.h"
 
-#include "../util/image.h"
+#include "image.h"
 
 GdkPixbuf *img_load(const char *name)
 {
@@ -35,8 +33,7 @@ void img_save(const guchar *d, const char *name, int w, int h)
 
 Image *img_load_IMAGE(const char *name)
 {
-    errx(-1, "Broken for now");
-    //return img_create(img_load(name));
+    return img_create(img_load(name));
 }
 
 void img_save_IMAGE(const Image *img, const char *name, int w, int h)
@@ -65,7 +62,7 @@ Image *img_read_bin(const char *name)
     img->y_root = -1;
     img->height = 20;
     img->width = 20;
-    img->raster = (int *) malloc(20 * 20 * sizeof(int));
+    img->raster = (bool *) (int *) malloc(20 * 20 * sizeof(int));
     FILE *file = fopen(name, "r");
     fread(img->raster, sizeof(int), 20 * 20, file);
     fclose(file);
