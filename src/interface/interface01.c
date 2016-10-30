@@ -1,5 +1,4 @@
 #include <gtk/gtk.h>
-#include <stdio.h>
 
 #include "../io/image.h"
 
@@ -61,8 +60,7 @@ activate(GtkApplication *app,
     gtk_widget_show_all (window);
 }
 
-int main(int argc, 
-         char **argv)
+int main(int argc, char **argv)
 {
     GtkApplication  *app;
     int status;
