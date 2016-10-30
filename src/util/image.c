@@ -1,7 +1,20 @@
 #define PI 3.14159265358979323846
 
 #include <math.h>
+#include <string.h>
 #include "image.h"
+
+void img_dumb_rotate(
+        Image *origin,
+        Image *destination,
+        double angle);
+
+void img_superfast_rotate(
+        bool *destination, int dest_width, int dest_heigth, int dest_delta,
+        bool *source, int src_width, int src_heigth, int src_delta,
+        float dst_center_x, float dst_center_y,
+        float src_center_x, float serc_center_y,
+        float angle_rad, float scaling);
 
 Image *img_create(GdkPixbuf *file)
 {
@@ -17,8 +30,8 @@ Image *img_create(GdkPixbuf *file)
     img->trueHeight = img->height;
     img->character = '\0';
     img->raster = (bool *) malloc(sizeof(bool) * img->width * img->height);
-    for(int y = 0; y < img->height; ++y)
-        for(int x = 0; x < img->width; ++x)
+    for (int y = 0; y < img->height; ++y)
+        for (int x = 0; x < img->width; ++x)
         {
             guchar *p = ori + y * row_size + x * n;
             int i = y * img->width + x;
@@ -249,7 +262,7 @@ Image *img_normalize(Image *img, int size)
     return result;
 }
 
-int img_get_orientation_factor(Image *image)
+double img_get_orientation_factor(Image *image)
 {
     int topx = 0;
     int lefty = 0;
@@ -274,28 +287,108 @@ int img_get_orientation_factor(Image *image)
     printf("Found left intersection : %d\n", lefty);
     printf("Found top intersection : %d\n", topx);
     double sin = (double) lefty / (double) topx;
-    double rotation_radians = asin(sin);
-    return (int) ((rotation_radians * (double) 180.) / (double) PI);
+    printf("Needing rotation of : %lf\n", asin(sin) * 180 / PI);
+    return asin(sin);
 }
 
 Image *img_autorotate(Image *img)
 {
-    int best_angle = img_get_orientation_factor(img);
+    double best_angle = img_get_orientation_factor(img);
     return img_rotate(img, best_angle);
 }
 
-Image *img_rotate(Image *img, int degrees)
+Image *img_rotate(Image *img, double degrees)
 {
-    Image *rotated = malloc(sizeof(Image));
-    rotated->width = img->width;
-    rotated->height = img->height;
-    rotated->trueHeight = img->trueHeight;
-    rotated->trueWidth = img->trueWidth;
-    rotated->x_root = img->x_root;
-    rotated->y_root = img->y_root;
-    rotated->raster = malloc(rotated->width * rotated->height * sizeof(bool));
+    Image *editable = img_cpy(img);
+    editable->width = editable->width * 2;
+    editable->height = editable->height * 2;
+    editable->raster = realloc(editable->raster, editable->width * editable->height * sizeof(bool));
+    img_dumb_rotate(img, editable, degrees);
+    return editable;
+}
+
+Image *img_cpy(Image *img)
+{
+    Image *copy = malloc(sizeof(Image));
+    copy->width = img->width;
+    copy->height = img->height;
+    copy->trueHeight = img->trueHeight;
+    copy->trueWidth = img->trueWidth;
+    copy->x_root = img->x_root;
+    copy->y_root = img->y_root;
+    copy->raster = malloc(copy->width * copy->height * sizeof(bool));
+    memcpy(copy->raster, img->raster, img->width * img->height * sizeof(bool));
+
+    return copy;
+}
+
+void img_superfast_rotate(
+        bool *destination, int dest_width, int dest_heigth, int dest_delta,
+        bool *source, int src_width, int src_heigth, int src_delta,
+        float dst_center_x, float dst_center_y,
+        float src_center_x, float serc_center_y,
+        float angle_rad, float scaling)
+{
+    src_delta /= sizeof(bool);
+    dest_delta /= sizeof(bool);
+
+    float duCol = (float) sin(-angle_rad) * (1.0f / scaling);
+    float dvCol = (float) cos(-angle_rad) * (1.0f / scaling);
+    float duRow = dvCol;
+    float dvRow = -duCol;
+
+    float startingu = src_center_x - (dst_center_x * dvCol + dst_center_y * duCol);
+    float startingv = serc_center_y - (dst_center_x * dvRow + dst_center_y * duRow);
+
+    float rowu = startingu;
+    float rowv = startingv;
 
 
+    for (int y = 0; y < dest_heigth; y++)
+    {
+        float u = rowu;
+        float v = rowv;
+
+        bool *pDst = destination + (dest_delta * y);
+
+        for (int x = 0; x < dest_width; x++)
+        {
+            if (u > 0 && v > 0 && u < src_width && v < src_heigth)
+            {
+                bool *pSrc = source + (int) u + ((int) v * src_delta);
+                *pDst++ = *pSrc++;
+            } else
+            {
+                *pDst++ = 0;
+            }
+
+            u += duRow;
+            v += dvRow;
+        }
+
+        rowu += duCol;
+        rowv += dvCol;
+    }
+}
+
+void img_dumb_rotate(Image *origin, Image *destination, double angle)
+{
+    int height = origin->height;
+    int width = origin->width;
+
+    printf("Rotating using angle : %lf radians\n", angle);
+    printf("                    -> %lf degrees\n", angle * 180 / PI);
+
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            int u = (int) (cos(-angle) * x + sin(-angle) * y);
+            int v = (int) (-sin(-angle) * x + cos(-angle) * y);
+            printf("%d,%d %d,%d\n", u, v, x, y);
+            destination->raster[(v + height / 2) * width + (u + width / 2)] = origin->raster[y * width + x];
+        }
+    }
 }
 
 

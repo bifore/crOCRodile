@@ -126,7 +126,6 @@ void binarize_around(
         raster[(y + 1) * row_s + (x + 1)] = dr > mean;
 }
 
-
 int average_color(guchar *p)
 {
     return (p[0] + p[1] + p[2]) / 3;

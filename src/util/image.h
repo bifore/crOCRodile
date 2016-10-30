@@ -19,6 +19,8 @@ typedef struct
 
 Image *img_create(GdkPixbuf *bmp);
 
+Image *img_cpy(Image *img);
+
 void img_free(Image *img);
 
 Image *img_crop(Image *img, int x, int y, int width, int height);
@@ -35,10 +37,10 @@ void _img_explore_character(Image *img, Vector *pixels, int x, int y);
 
 Image *img_normalize(Image *img, int size);
 
-int img_get_orientation_factor(Image *image);
+double img_get_orientation_factor(Image *image);
 
 Image *img_autorotate(Image *img);
 
-Image *img_rotate(Image *img, int degrees);
+Image *img_rotate(Image *img, double degrees);
 
 #endif /* UTIL_IMAGE_H_ */

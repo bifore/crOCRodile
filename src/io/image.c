@@ -38,8 +38,8 @@ Image *img_load_IMAGE(const char *name)
 
 void img_save_IMAGE(const Image *img, const char *name, int w, int h)
 {
-    printf("Saving img : ");
-    img_print(img);
+    //printf("Saving img : ");
+    //img_print(img);
     guchar *data = (guchar *) malloc(sizeof(guchar) * img->width * img->height * 3);
     int a = 0;
     for (int i = 0; i < img->width * img->height; ++i)
