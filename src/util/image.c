@@ -3,7 +3,7 @@
 
 Image *img_create(GdkPixbuf *file)
 {
-    return binarize(file, 0.05);
+    return binarize(file, 0.01);
 }
 
 void img_free(Image *img)

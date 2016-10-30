@@ -15,10 +15,12 @@ void binarize_around(Image *image,
                      int x,
                      int col_s,
                      float percent_tolerance);
+
 bool is_in_bounds(int x, int y, int len_image, int row_size, int col_size);
 guchar * get_point_delta(guchar *orig, int dx, int dy, int row_s, int col_s);
 
 Image *binarize(GdkPixbuf *file, float percent_tolerance) {
+    printf("Starting binarization");
     Image *img = (Image *) malloc(sizeof(Image));
 
     guchar *origin = gdk_pixbuf_get_pixels(file);
@@ -40,7 +42,7 @@ Image *binarize(GdkPixbuf *file, float percent_tolerance) {
                     p,
                     img->raster,
                     img->width * img -> height,
-                     y,
+                    y,
                     row_size,
                     x,
                     num_bytes,
@@ -61,6 +63,7 @@ void binarize_around(
         int col_s,
         float percent_tolerance)
 {
+    printf("Binarizing around : %d, %d\n", x, y);
     guchar *p_ul = get_point_delta(ori, -1, -1, row_s, col_s);
     guchar *p_uc = get_point_delta(ori,  0, -1, row_s, col_s);
     guchar *p_ur = get_point_delta(ori, +1, -1, row_s, col_s);
@@ -121,7 +124,7 @@ void binarize_around(
     {
         if (ul_bounds)
         {
-            raster[(y-1)*row_s+(x-1)] = ul > mean;
+            raster[(y-1)*row_s+(x-1)] = ul < mean;
         }
     }
 
@@ -130,7 +133,7 @@ void binarize_around(
     {
         if (uc_bounds)
         {
-            raster[(y-1)*row_s+x] = uc > mean;
+            raster[(y-1)*row_s+x] = uc < mean;
         }
     }
 
@@ -139,7 +142,7 @@ void binarize_around(
     {
         if (ur_bounds)
         {
-            raster[(y-1)*row_s+(x+1)] = ur > mean;
+            raster[(y-1)*row_s+(x+1)] = ur < mean;
         }
     }
 
@@ -148,7 +151,7 @@ void binarize_around(
     {
         if (ml_bounds)
         {
-            raster[y*row_s+(x-1)] = ml > mean;
+            raster[y*row_s+(x-1)] = ml < mean;
         }
     }
 
@@ -157,7 +160,7 @@ void binarize_around(
     {
         if (mr_bounds)
         {
-            raster[y*row_s+(x+1)] = mr > mean;
+            raster[y*row_s+(x+1)] = mr < mean;
         }
     }
 
@@ -166,7 +169,7 @@ void binarize_around(
     {
         if (dl_bounds)
         {
-            raster[(y+1)*row_s+(x-1)] = dl > mean;
+            raster[(y+1)*row_s+(x-1)] = dl < mean;
         }
     }
 
@@ -175,7 +178,7 @@ void binarize_around(
     {
         if (dc_bounds)
         {
-            raster[(y+1)*row_s+x] = dc > mean;
+            raster[(y+1)*row_s+x] = dc < mean;
         }
     }
 
@@ -184,7 +187,7 @@ void binarize_around(
     {
         if (dr_bounds)
         {
-            raster[(y+1)*row_s+(x+1)] = dr > mean;
+            raster[(y+1)*row_s+(x+1)] = dr < mean;
         }
     }
 }
