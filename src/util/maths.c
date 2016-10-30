@@ -23,7 +23,26 @@ void mat_free(Matrix *mat, bool content)
     free(mat);
 }
 
-Matrix *mat_multiply(Matrix *a, Matrix *b)
+void mat_print(Matrix *mat)
+{
+    printf("/");
+    for(int i = 0 ; i < mat->width; ++i)
+        printf("-");
+    printf("\\\n");
+    for(int y = 0; y < mat->height; ++y)
+    {
+        printf("|");
+        for(int x = 0; x < mat->width; ++x)
+            printf("%f", mat->mat[y * mat->width + x]);
+        printf("|\n");
+    }
+    printf("\\");
+    for(int i = 0 ; i < mat->width; ++i)
+        printf("-");
+    printf("/\n");
+}
+
+Matrix * mat_multiply(Matrix * a, Matrix * b)
 {
     Matrix *r = mat_create(b->width, a->height, NULL);
     for (int y = 0; y < r->height; ++y)
@@ -108,10 +127,16 @@ float mth_sigmoid(float x)
 
 float mth_sigmoid_prime(float x)
 {
-    return expf(-x) / ((1 + expf(-x)) * (1 + expf(-x)));
+    return expf(x) / ((1 + expf(x)) * (1 + expf(x)));
 }
 
 float mth_apply(float (*func)(float), float x)
 {
     return (*func)(x);
+}
+
+void mat_scalar(Matrix *a,  float s)
+{
+    for(int i = 0; i < a->height * a->width; ++i)
+        a->mat[i] *= s;
 }

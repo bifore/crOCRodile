@@ -12,11 +12,15 @@ typedef struct
 
 Matrix *mat_create(int width, int height, float *matrix);
 
-void mat_free(Matrix *mat, bool content);
-
 Matrix *mat_multiply(Matrix *a, Matrix *b);
 
 Matrix *mat_transpose(Matrix *a);
+
+void mat_free(Matrix *mat, bool content);
+
+void mat_print(Matrix *mat);
+
+void mat_scalar(Matrix *a, float s);
 
 Matrix *mat_substract(Matrix *a, Matrix *b);
 

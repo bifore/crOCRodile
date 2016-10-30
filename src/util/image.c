@@ -1,9 +1,28 @@
 #include "image.h"
-#include "../processing/binarizator.h"
 
 Image *img_create(GdkPixbuf *file)
 {
-    return binarize(file, 0.01);
+    Image *img = (Image *) malloc(sizeof(Image));
+    int n = gdk_pixbuf_get_has_alpha(file) ? 4 : 3;
+    int row_size = gdk_pixbuf_get_rowstride(file);
+    guchar *ori = gdk_pixbuf_get_pixels(file);
+    img->x_root = 0;
+    img->y_root = 0;
+    img->width = gdk_pixbuf_get_width(file);
+    img->height = gdk_pixbuf_get_height(file);
+    img->trueWidth = img->width;
+    img->trueHeight = img->height;
+    img->character = '\0';
+    img->raster = (bool *) malloc(sizeof(bool) * img->width * img->height);
+    for(int y = 0; y < img->height; ++y)
+        for(int x = 0; x < img->width; ++x)
+        {
+            guchar *p = ori + y * row_size + x * n;
+            int i = y * img->width + x;
+            int v = (p[0] + p[1] + p[2]) / 3;
+            img->raster[i] = v < 128;
+        }
+    return img;
 }
 
 void img_free(Image *img)
@@ -18,6 +37,9 @@ Image *img_crop(Image *img, int x, int y, int width, int height)
     Image *result = (Image *) malloc(sizeof(Image));
     result->width = width;
     result->height = height;
+    result->trueWidth = width;
+    result->trueHeight = height;
+    result->character = img->character;
     result->x_root = img->x_root + x;
     result->y_root = img->y_root + y;
     result->raster = (bool *) malloc(sizeof(bool) * pixel_nb);
@@ -37,6 +59,8 @@ void img_crop_ip(Image *img, int x, int y, int width, int height)
     Image *result = img_crop(img, x, y, width, height);
     img->width = width;
     img->height = height;
+    img->trueWidth = width;
+    img->trueHeight = height;
     img->x_root = result->x_root;
     img->y_root = result->y_root;
     free(img->raster);
@@ -159,6 +183,9 @@ Image *img_extract_character(Image *img)
     Image *character = (Image *) malloc(sizeof(Image));
     character->width = img->width;
     character->height = img->height;
+    character->trueWidth = img->width;
+    character->trueHeight = img->height;
+    character->character = img->character;
     character->x_root = img->x_root;
     character->y_root = img->y_root;
     character->raster = calloc((size_t) (img->width * img->height), sizeof(bool));
@@ -198,8 +225,11 @@ Image *img_normalize(Image *img, int size)
     Image *result = (Image *) malloc(sizeof(Image));
     result->width = size;
     result->height = size;
-    result->x_root = -1;
-    result->y_root = -1;
+    result->trueWidth = img->width;
+    result->trueHeight = img->height;
+    result->x_root = img->x_root;
+    result->y_root = img->y_root;
+    result->character = img->character;
     result->raster = calloc((size_t) (size * size), sizeof(bool));
     float x_factor = (float) img->width / size;
     float y_factor = (float) img->height / size;

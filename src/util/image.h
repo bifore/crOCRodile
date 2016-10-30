@@ -12,6 +12,9 @@ typedef struct
     bool *raster;
     int x_root;
     int y_root;
+    int trueWidth;
+    int trueHeight;
+    char character;
 } Image;
 
 Image *img_create(GdkPixbuf *bmp);
