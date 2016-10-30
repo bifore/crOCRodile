@@ -11,19 +11,24 @@ typedef struct
     int size;
     int capacity;
     int cellSize;
-    void * * data;
+    void **data;
 } Vector;
 
-Vector * vec_create(int capacity);
-void vec_free(Vector * vec, bool free_data);
-Vector * vec_delete(Vector * vec, int index);
+Vector *vec_create(int capacity);
 
-Vector * vec_add(Vector * vec, void * value);
-Vector * vec_set(Vector * vec, int index, void * value);
-void * vec_get(Vector * vec, int index);
+void vec_free(Vector *vec, bool free_data);
 
-Vector * vec_add_int(Vector * vec, int value);
-int vec_get_int(Vector * vec, int index);
+Vector *vec_delete(Vector *vec, int index);
+
+Vector *vec_add(Vector *vec, void *value);
+
+Vector *vec_set(Vector *vec, int index, void *value);
+
+void *vec_get(Vector *vec, int index);
+
+Vector *vec_add_int(Vector *vec, int value);
+
+int vec_get_int(Vector *vec, int index);
 
 
 #endif /* !UTILS_VECTOR_H_ */

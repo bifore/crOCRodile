@@ -15,15 +15,19 @@ typedef struct
 } Image;
 
 Image *img_create(GdkPixbuf *bmp);
+
 void img_free(Image *img);
 
 Image *img_crop(Image *img, int x, int y, int width, int height);
+
 void img_crop_ip(Image *img, int x, int y, int width, int height);
+
 Image *img_crop_border(Image *img, bool ip);
 
 void img_print(Image *img);
 
 Image *img_extract_character(Image *img);
+
 void _img_explore_character(Image *img, Vector *pixels, int x, int y);
 
 Image *img_normalize(Image *img, int size);

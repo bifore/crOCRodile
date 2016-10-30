@@ -2,31 +2,31 @@
 
 #include <stdio.h>
 
-Vector * vec_create(int capacity)
+Vector *vec_create(int capacity)
 {
-    Vector * vec = (Vector *) malloc(sizeof(Vector));
+    Vector *vec = (Vector *) malloc(sizeof(Vector));
     vec->size = 0;
     vec->capacity = capacity;
     vec->data = malloc(sizeof(void *) * capacity);
     return vec;
 }
 
-void vec_free(Vector * vec, bool free_data)
+void vec_free(Vector *vec, bool free_data)
 {
-   if(free_data)
-   {
-       for(int i = 0; i < vec->size; ++i)
-           free(vec->data[i]);
-   }
-   free(vec->data);
-   free(vec);
+    if (free_data)
+    {
+        for (int i = 0; i < vec->size; ++i)
+            free(vec->data[i]);
+    }
+    free(vec->data);
+    free(vec);
 }
 
-Vector * vec_add(Vector * vec, void * value)
+Vector *vec_add(Vector *vec, void *value)
 {
-    if(vec->size == vec->capacity)
+    if (vec->size == vec->capacity)
     {
-        if(vec->capacity < 10)
+        if (vec->capacity < 10)
             vec->capacity = 10;
         vec->capacity *= VECTOR_GROWTH_RATE;
         vec->data = realloc(vec->data, sizeof(void *) * vec->capacity);
@@ -36,9 +36,9 @@ Vector * vec_add(Vector * vec, void * value)
     return vec;
 }
 
-Vector * vec_set(Vector * vec, int index, void * value)
+Vector *vec_set(Vector *vec, int index, void *value)
 {
-    if(index >= vec->size)
+    if (index >= vec->size)
     {
         fprintf(stderr, "Vector: index out of range");
         return NULL;
@@ -47,9 +47,9 @@ Vector * vec_set(Vector * vec, int index, void * value)
     return vec;
 }
 
-void * vec_get(Vector * vec, int index)
+void *vec_get(Vector *vec, int index)
 {
-    if(index >= vec->size)
+    if (index >= vec->size)
     {
         fprintf(stderr, "Vector: index out of range");
         return NULL;
@@ -57,14 +57,14 @@ void * vec_get(Vector * vec, int index)
     return vec->data[index];
 }
 
-Vector * vec_delete(Vector * vec, int index)
+Vector *vec_delete(Vector *vec, int index)
 {
-    if(index >= vec->size)
+    if (index >= vec->size)
     {
         fprintf(stderr, "Vector: index out of range");
         return NULL;
     }
-    for(int i = index; i < vec->size - 1; ++i)
+    for (int i = index; i < vec->size - 1; ++i)
     {
         vec->data[index] = vec->data[index + 1];
     }
@@ -72,15 +72,15 @@ Vector * vec_delete(Vector * vec, int index)
     return vec;
 }
 
-Vector * vec_add_int(Vector * vec, int value)
+Vector *vec_add_int(Vector *vec, int value)
 {
-    int * ptr = malloc(sizeof(int));
+    int *ptr = malloc(sizeof(int));
     *ptr = value;
     return vec_add(vec, (void *) ptr);
 }
 
 
-int vec_get_int(Vector * vec, int index)
+int vec_get_int(Vector *vec, int index)
 {
     return *(int *) vec_get(vec, index);
 }

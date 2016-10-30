@@ -22,6 +22,7 @@ typedef struct
 } Canny_filter;
 
 Canny_filter *canny(GdkPixbuf *image);
+
 void canny_free(Canny_filter *cf);
 
 
