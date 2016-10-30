@@ -1,11 +1,12 @@
 #include "io/image.h"
+#include "processing/canny.h"
 
 #include "defaults.h"
 
 
 int main()
 {
-    GdkPixbuf *img = img_load("Lorem-Droid-Mono-left.bmp");
+    GdkPixbuf *img = img_load("Lorem-Droid-Mono-justify.bmp");
     Canny_filter *cf = canny(img);
     guchar *data = (guchar *) malloc(sizeof(guchar) * cf->w * cf->h * 3);
     int a = 0;
@@ -23,15 +24,14 @@ int main()
 
     Vector * chars = vec_create(10);
     Image * character = img_extract_character(image);
-    int v = 0;
     while(character != NULL)
     {
-        if(character->width < 7 || character->height < 10)
+        //if(character->width < 7 || character->height < 10)
+        if(character->width <= 4 || character->height <= 4)
             img_free(character);
         else
         {
-            /*img_print(character);
-            printf("%d", v++);
+            /*printf("%d", v++);
             char x;
             while(x = getchar())
             {   
@@ -49,8 +49,22 @@ int main()
     {
         char path[] = "res/X.char";
         path[4] = 'a' + i;
-        vec_add(alpha, img_read_bin(path));
+        Image *img = img_read_bin(path);
+        img->character = 'a' + i;
+        vec_add(alpha, img);
         //img_print(vec_get(alpha, alpha->size - 1));
+    }
+    {
+        Image *img = img_read_bin("res/comma.char");
+        img->character = ',';
+        img_print(img);
+        vec_add(alpha, img);
+    }
+    {
+        Image *img = img_read_bin("res/point.char");
+        img->character = '.';
+        img_print(img);
+        vec_add(alpha, img);
     }
 
     for(int i = 0; i < chars->size; ++i)
@@ -70,7 +84,7 @@ int main()
         }*/
         int min = 20 * 20 + 1;
         int min_pos = -1;
-        for(int c = 0; c < 26; ++c)
+        for(int c = 0; c < alpha->size; ++c)
         {
             Image *alph = (Image *) vec_get(alpha, c);
             int diff = 0;
@@ -86,16 +100,93 @@ int main()
                 min_pos = c;
             }
         }
-        printf("%d\n", i);
-        img_print(norm);
+        //printf("%d\n", i);
+        /*img_print(norm);
         char x;
         while(x = getchar())
             if(x == '\n')
-                break;
-        printf("\n=> %c\n\n", 'a' + min_pos);
+                break;*/
+        img->character = ((Image *) vec_get(alpha, min_pos))->character;
         img_free(norm);
-        img_free(img);
     }
+
+    Vector *lines = vec_create(2);
+    float meanHspace = 0.;
+    for(int i = 0; i < chars->size; ++i)
+    {
+        Image *c = (Image *) vec_get(chars, i);
+        if(c != NULL)
+        {
+            Vector *line = vec_create(2);
+            vec_add(line, c);
+            chars->data[i] = NULL;
+            int ch = c->height * .95;
+            for(int ii = 0; ii < chars->size; ++ii)
+            {
+                Image *cur = (Image *) vec_get(chars, ii);
+                if(ii != i && cur != NULL)
+                {
+                    int as = abs(cur->y_root - c->y_root);
+                    //if(ii < 50 && as > 30)
+                        //img_print(cur);
+                        //printf("%d < %d\n", as, ch);
+                    if(as < ch)
+                    {
+                        vec_add(line, cur);
+                        chars->data[ii] = NULL;
+                    }
+                }
+            }
+            for(int ii = 0; ii < line->size ; ++ii)
+            {
+                int pos = ii;
+                int min = original->width;
+                for(int iii = ii; iii < line->size; ++iii)
+                {
+                    Image *cur = (Image *) vec_get(line, iii);
+                    if(min > cur->x_root)
+                    {
+                        min = cur->x_root;
+                        pos = iii;
+                    }
+                }
+                Image *tmp = line->data[ii];
+                line->data[ii] = line->data[pos];
+                line->data[pos] = tmp;
+                if(ii != 0)
+                {
+                    Image *pre = (Image *) vec_get(line, ii - 1);
+                    Image *cur = (Image *) vec_get(line, ii);
+                    meanHspace += cur->x_root - pre->x_root;
+                }
+            }
+            vec_add(lines, line);
+        }
+    }
+    meanHspace /= (float) chars->size;
+
+    for(int l = 0; l < lines->size; ++l)
+    {
+        Vector *line = (Vector *) vec_get(lines, l);
+        for(int c = 0; c < line->size; ++c)
+        {
+            Image *cur = (Image *) vec_get(line, c);
+            //if(cur->character == ',' && cur->height == 8)
+            //    img_save_bin(img_normalize(cur, 20), "res/comma.char");
+            printf("%c", cur->character);
+            if(c + 1 < line->size)
+            {
+                Image *nxt = (Image *) vec_get(line, c + 1);
+                if(nxt->x_root - cur->x_root > meanHspace)
+                    if(nxt->character != '.' && nxt->character != ',')
+                        printf(" ");
+            }
+            img_free(cur);
+        }
+        printf("\n");
+    }
+
+
     //Image *imgg = img_read_bin("res/a.char");
     //img_print(imgg);
     vec_free(chars, false);
