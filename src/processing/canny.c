@@ -20,7 +20,6 @@ void comp_edges(Canny_filter *cf);
 
 void canny_free(Canny_filter *cf);
 
-
 void init_array(Canny_filter *cf)
 {
     int size = cf->w * cf->h;

@@ -1,25 +1,9 @@
 #include "image.h"
+#include "../processing/binarizator.h"
 
 Image *img_create(GdkPixbuf *file)
 {
-    Image *img = (Image *) malloc(sizeof(Image));
-    int n = gdk_pixbuf_get_has_alpha(file) ? 4 : 3;
-    int row_size = gdk_pixbuf_get_rowstride(file);
-    guchar *ori = gdk_pixbuf_get_pixels(file);
-    img->x_root = 0;
-    img->y_root = 0;
-    img->width = gdk_pixbuf_get_width(file);
-    img->height = gdk_pixbuf_get_height(file);
-    img->raster = (bool *) malloc(sizeof(bool) * img->width * img->height);
-    for(int y = 0; y < img->height; ++y)
-        for(int x = 0; x < img->width; ++x)
-        {
-            guchar *p = ori + y * row_size + x * n;
-            int i = y * img->width + x;
-            int v = (p[0] + p[1] + p[2]) / 3;
-            img->raster[i] = v < 128;
-        }
-    return img;
+    return binarize(file, 0.05);
 }
 
 void img_free(Image *img)
@@ -154,7 +138,7 @@ Image *img_extract_character(Image *img)
 {
     // search an entry point
     bool as_find = false;
-    int xa, ya;
+    int xa = 0, ya= 0;
     for(int y = 0; y < img->height && !as_find; ++y)
     {
         for(int x = 0; x < img->width && !as_find; ++x)
@@ -167,6 +151,7 @@ Image *img_extract_character(Image *img)
             }
         }
     }
+
     if(!as_find)
         return NULL;
     Vector *pixels = vec_create(10);
@@ -176,7 +161,7 @@ Image *img_extract_character(Image *img)
     character->height = img->height;
     character->x_root = img->x_root;
     character->y_root = img->y_root;
-    character->raster = calloc(img->width * img->height, sizeof(bool));
+    character->raster = calloc((size_t) (img->width * img->height), sizeof(bool));
     for(int i = 0; i < pixels->size; ++i)
         character->raster[vec_get_int(pixels, i)] = true;
     img_crop_border(character, true);
@@ -215,15 +200,15 @@ Image *img_normalize(Image *img, int size)
     result->height = size;
     result->x_root = -1;
     result->y_root = -1;
-    result->raster = calloc(size * size, sizeof(bool));
+    result->raster = calloc((size_t) (size * size), sizeof(bool));
     float x_factor = (float) img->width / size;
     float y_factor = (float) img->height / size;
     for(int y = 0; y < size; ++y)
     {
         for(int x = 0; x < size; ++x)
         {
-            int xi = (float) x * x_factor;
-            int yi = (float) y * y_factor;
+            int xi = (int) ((float) x * x_factor);
+            int yi = (int) ((float) y * y_factor);
             if(img->raster[yi * img->width + xi])
                 result->raster[y * size + x] = true;
         }
