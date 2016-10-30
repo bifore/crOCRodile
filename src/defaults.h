@@ -2,7 +2,8 @@
 #define DEFAULTS_H_
 
 #define TESTSETSIMPLE "simple/"
-#define IMAGE_RAW "image_raw.bmp"
-#define IMAGE_CANNIED "image_cannied.bmp"
+#define IMAGE_NORMAL "image_normal_"
+#define IMAGE_LOREM "image_lorem"
+#define IMAGE_FINAL_SUFFIX "final.bmp"
 
 #endif /* !DEFAULTS_H_ */
