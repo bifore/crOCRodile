@@ -24,7 +24,7 @@ void img_crop_ip(Image *img, int x, int y, int width, int height);
 
 Image *img_crop_border(Image *img, bool ip);
 
-void img_print(Image *img);
+void img_print(const Image *img);
 
 Image *img_extract_character(Image *img);
 

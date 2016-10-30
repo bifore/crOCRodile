@@ -112,7 +112,7 @@ Image *img_crop_border(Image *img, bool ip)
     return img_crop(img, x, y, width - x, height - y);
 }
 
-void img_print(Image *img)
+void img_print(const Image *img)
 {
     printf("D => (%i x %i) ", img->width, img->height);
     printf("@ => (%i, %i)\n/", img->x_root, img->y_root);
