@@ -6,7 +6,7 @@
 
 int main()
 {
-    GdkPixbuf *img = img_load("Lorem-Droid-Mono-justify.bmp");
+    GdkPixbuf *img = img_load("./Lorem-Droid-Mono-left.bmp");
     Canny_filter *cf = canny(img);
     guchar *data = (guchar *) malloc(sizeof(guchar) * cf->w * cf->h * 3);
     int a = 0;
@@ -47,23 +47,30 @@ int main()
     Vector *alpha = vec_create(26);
     for(int i = 0; i < 26; ++i)
     {
-        char path[] = "res/X.char";
+        char path[] = "res/?.char";
         path[4] = 'a' + i;
         Image *img = img_read_bin(path);
         img->character = 'a' + i;
         vec_add(alpha, img);
         //img_print(vec_get(alpha, alpha->size - 1));
     }
+    for(int i = 0; i < 26; ++i)
+    {
+        char path[] = "res/?.char";
+        path[4] = 'A' + i;
+        Image *img = img_read_bin(path);
+        img->character = 'A' + i;
+        vec_add(alpha, img);
+        //img_print(vec_get(alpha, alpha->size - 1));
+    }
     {
         Image *img = img_read_bin("res/comma.char");
         img->character = ',';
-        img_print(img);
         vec_add(alpha, img);
     }
     {
         Image *img = img_read_bin("res/point.char");
         img->character = '.';
-        img_print(img);
         vec_add(alpha, img);
     }
 
@@ -100,6 +107,12 @@ int main()
                 min_pos = c;
             }
         }
+        /*if(min != 0 && img->x_root != 35)
+        {
+            printf("@%d - %d\n", i, min);
+            img_print(img);
+            //img_save_bin(norm, "res/U.char");
+        }*/
         //printf("%d\n", i);
         /*img_print(norm);
         char x;
@@ -171,8 +184,8 @@ int main()
         for(int c = 0; c < line->size; ++c)
         {
             Image *cur = (Image *) vec_get(line, c);
-            //if(cur->character == ',' && cur->height == 8)
-            //    img_save_bin(img_normalize(cur, 20), "res/comma.char");
+            //if(cur->character == 'b' && cur->width == 14)
+            //    img_save_bin(img_normalize(cur, 20), "res/h.char");
             printf("%c", cur->character);
             if(c + 1 < line->size)
             {
