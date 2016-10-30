@@ -1,4 +1,8 @@
+#include <err.h>
 #include "image.h"
+#include "../processing/canny.h"
+#include "../defaults.h"
+#include "../util/image.h"
 
 GdkPixbuf *img_load(const char *name)
 {
@@ -28,5 +32,19 @@ void img_save(const guchar *d, const char *name, int w, int h)
         return;
     }
     g_object_unref(img);
+}
+
+Image * img_load_IMAGE(const char *name) {
+    errx(-1, "Broken for now");
+    //return img_create(img_load(name));
+}
+
+void img_save_IMAGE(const Image *img, const char *name, int w, int h) {
+    guchar *data = (guchar *) malloc(sizeof(guchar) * img->width * img->height * 3);
+    int a = 0;
+    for(int i = 0; i < img->width * img->height; ++i)
+        for(int u = 0; u < 3; ++u)
+            data[++a] = (guchar) (img->raster[i] ? 255 : 0);
+    img_save(data, name, w, h);
 }
 
