@@ -72,14 +72,14 @@ void img_save_ary(const guchar *d, const char *name, int w, int h)
     g_object_unref(img);
 }
 
-void img_save(const Image *img, const char *name, int w, int h)
+void img_save(const Image *img, const char *name)
 {
     guchar *data = (guchar *) malloc(sizeof(guchar) * img->width * img->height * 3);
     int a = 0;
     for (int i = 0; i < img->width * img->height; ++i)
         for (int u = 0; u < 3; ++u)
             data[++a] = (guchar) (img->raster[i] ? 255 : 0);
-    img_save_ary(data, name, w, h);
+    img_save_ary(data, name, img->width, img->height);
     free(data);
 }
 

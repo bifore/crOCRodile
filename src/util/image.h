@@ -19,6 +19,7 @@ typedef struct
 } Image;
 
 Image *img_create(GdkPixbuf *bmp);
+Image *img_create_noBin(GdkPixbuf *bmp);
 
 Image *img_cpy(Image *img);
 

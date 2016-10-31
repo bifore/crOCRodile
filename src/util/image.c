@@ -42,6 +42,32 @@ Image *img_create(GdkPixbuf *file)
     return img;
 }
 
+Image *img_create_noBin(GdkPixbuf *file)
+{
+    Image *img = (Image *) malloc(sizeof(Image));
+    int n = gdk_pixbuf_get_has_alpha(file) ? 4 : 3;
+    int row_size = gdk_pixbuf_get_rowstride(file);
+    guchar *ori = gdk_pixbuf_get_pixels(file);
+    img->x_root = 0;
+    img->y_root = 0;
+    img->width = gdk_pixbuf_get_width(file);
+    img->height = gdk_pixbuf_get_height(file);
+    img->trueWidth = img->width;
+    img->trueHeight = img->height;
+    img->character = '\0';
+    img->font = -1;
+    img->raster = (char *) malloc(sizeof(char) * img->width * img->height);
+    for(int y = 0; y < img->height; ++y)
+        for(int x = 0; x < img->width; ++x)
+        {
+            guchar *p = ori + y * row_size + x * n;
+            int i = y * img->width + x;
+            char v = (p[0] + p[1] + p[2]) / 3;
+            img->raster[i] = v;
+        }
+    return img;
+}
+
 void img_free(Image *img)
 {
     free(img->raster);
