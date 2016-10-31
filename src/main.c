@@ -1,6 +1,7 @@
 #include "io/image.h"
 #include "processing/binarizator.h"
 #include "defaults.h"
+#include "util/string.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -255,7 +256,6 @@ int main(int argc, char **argv)
     }
     meanHspace /= meanHspaceDiv;
     vec_free(chars, false);
-    printf("%f\n", meanHspace);
 
     for(int l = 0; l < lines->size; ++l)
     {
@@ -314,7 +314,7 @@ int main(int argc, char **argv)
     }
 
     if(showLine || showChar)
-        img_save_buf(img, "rect.bmp");
+        img_save_buf(img, str_con(2, argv[argc - 1], "_rect.bmp"));
 
     free_lines(lines);
     img_free(original);
