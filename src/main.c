@@ -1,32 +1,6 @@
 #include "io/image.h"
 #include "defaults.h"
 
-<<<<<<< Updated upstream
-#define PI 3.14159265358979323846
-
-int main()
-{
-    Image *img_binarized = img_load_IMAGE(TEST_SET_FOLDER TEST_SET_IMAGE_ROTATION_NOSUFFIX ".jpg");
-    img_crop_border(img_binarized, true);
-
-    img_save_IMAGE(
-            img_binarized,
-            TEST_SET_FOLDER TEST_SET_OUT_FOLDER TEST_SET_IMAGE_ROTATION_NOSUFFIX "_norotate.jpg",
-            img_binarized->width,
-            img_binarized->height
-    );
-
-    Image *rotated = img_rotate(img_binarized, PI * 45. / 180.);
-    img_save_IMAGE(
-            rotated,
-            TEST_SET_FOLDER TEST_SET_OUT_FOLDER TEST_SET_IMAGE_ROTATION_NOSUFFIX "_rotated.jpg",
-            rotated->width,
-            rotated->height
-    );
-
-    img_free(img_binarized);
-    return 0;
-=======
 #include <stdio.h>
 #include <string.h>
 
@@ -126,7 +100,7 @@ int main(int argc, char **argv)
         mkdir(path, 0777);
     }
 
-    GdkPixbuf *img = img_load("./Lorem-Droid-Serif-Left.bmp");
+    GdkPixbuf *img = img_load("./MultiColUneFont_150.jpg");
 
     Image * original = img_create(img);
     Image * image = img_crop_border(original, false);
@@ -140,9 +114,9 @@ int main(int argc, char **argv)
         else
             vec_add(chars, (void *) character);
         character = img_extract_character(image);
-        printf("%d\n", chars->size);
+        printf("Characters detected => %d\r", chars->size);
     }
-    printf("character number -> %i\n", chars->size);
+    printf("Characters detected => %d\n", chars->size);
 
     Vector *fonts = getFontList();
 
@@ -197,6 +171,7 @@ int main(int argc, char **argv)
 
     Vector *lines = vec_create(2);
     float meanHspace = 0.;
+    float meanHspaceDiv = 0.;
     for(int i = 0; i < chars->size; ++i)
     {
         Image *c = (Image *) vec_get(chars, i);
@@ -236,32 +211,71 @@ int main(int argc, char **argv)
                 {
                     Image *pre = (Image *) vec_get(line, ii - 1);
                     Image *cur = (Image *) vec_get(line, ii);
-                    meanHspace += cur->x_root - pre->x_root;
+                    printf("%d\n", (cur->x_root - pre->x_root + pre->width));
+                    meanHspace += cur->x_root - pre->x_root + pre->width;
+                    ++meanHspaceDiv;
                 }
             }
             vec_add(lines, line);
         }
     }
-    meanHspace /= (float) chars->size;
+    meanHspace /= meanHspaceDiv;
     vec_free(chars, false);
+    printf("%f\n", meanHspace);
 
     for(int l = 0; l < lines->size; ++l)
     {
         Vector *line = (Vector *) vec_get(lines, l);
+        Image *fi = (Image *) vec_get(line, 0);
+        Image *li = (Image *) vec_get(line, line->size - 1);
+        int ymin = fi->y_root;
+        int yminW = fi->y_root;
+        int hmaxW = -1;
         for(int c = 0; c < line->size; ++c)
         {
             Image *cur = (Image *) vec_get(line, c);
+            if(fi == NULL)
+                fi = cur;
+            if(cur->y_root < ymin)
+                ymin = cur->y_root;
+            if(cur->y_root < yminW)
+                yminW = cur->y_root;
+            if(cur->y_root - yminW + cur->height > hmaxW)
+                hmaxW = cur->y_root - yminW + cur->height;
             printf("%c", cur->character);
+            int w = cur->width;
+            img_drawRect(img, cur->x_root, cur->y_root, w, cur->height,
+                         255, 0, 0);
             if(c + 1 < line->size)
             {
                 Image *nxt = (Image *) vec_get(line, c + 1);
-                if(nxt->x_root - cur->x_root > meanHspace)
+                if(nxt->x_root - cur->x_root + cur->width > meanHspace * 1.1)
                     if(nxt->character != '.' && nxt->character != ',')
+                    {
                         printf(" ");
+                        w = cur->x_root + cur->width - fi->x_root;
+                        //img_drawRect(img, fi->x_root - 1, yminW - 1, w + 2,
+                        //             hmaxW + 2, 0, 0, 255);
+                        yminW = 999999;
+                        hmaxW = -1;
+                        fi = NULL;
+                    }
             }
         }
+        fi = (Image *) vec_get(line, 0);
+        int hmax = -1;
+        for(int c = 0; c < line->size; ++c)
+        {
+            Image *cur = (Image *) vec_get(line, c);
+            if(cur->y_root - ymin + cur->height > hmax)
+                hmax = cur->y_root - ymin + cur->height;
+        }
+        int w = li->x_root + li->width - fi->x_root;
+        img_drawRect(img, fi->x_root, ymin, w, hmax, 0, 255, 0);
         printf("\n");
     }
+
+    img_save_buf(img, "rect.bmp");
 
     free_lines(lines);
     img_free(original);
@@ -280,5 +294,4 @@ int main(int argc, char **argv)
 
     if(learn)
         free(newFontName);
->>>>>>> Stashed changes
 }
