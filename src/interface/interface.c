@@ -7,15 +7,16 @@
 
 static void detect(GtkWidget *widget, gpointer data)
 {
+    printf("detect");
 }
 
 static void learn(GtkWidget *widget, gpointer data)
 {
+    printf("learn");
 }
 
 static void chooser(GtkWidget *widget, gpointer *data)
 {
-    GtkWidget *image;
     GtkWidget *dialog;
     gint res;
 
