@@ -1,5 +1,6 @@
 #include "io/image.h"
 #include "processing/binarizator.h"
+#include "interface/interface.h"
 #include "defaults.h"
 #include "util/string.h"
 
@@ -88,6 +89,7 @@ int main(int argc, char **argv)
     char learn = false;
     char showLine = false;
     char showChar = false;
+    char showGui = false;
     if(argc <= 1)
     {
         printf("Try 'croORCodile --help' for more information.\n");
@@ -97,6 +99,8 @@ int main(int argc, char **argv)
     {
         if(!strcmp(argv[i], "--learn") || !strcmp(argv[i], "-l"))
            learn = true;
+        if(!strcmp(argv[i], "--show-gui") || !strcmp(argv[i], "-G"))
+           showGui = true;
         if(!strcmp(argv[i], "--show-line") || !strcmp(argv[i], "-L"))
            showLine = true;
         if(!strcmp(argv[i], "--show-char") || !strcmp(argv[i], "-C"))
@@ -115,10 +119,15 @@ int main(int argc, char **argv)
                    "    -L, --show-line    "
                    "Display lines in the output image.\n"
                    "    -C, --show-char    "
+                   "Show the graphical user interface.\n"
+                   "    -G, --show-gui     "
                    "Display characters in the output image.\n");
             return 0;
         }
     }
+
+    if(showGui)
+        gui_start();
     
     char *newFontName = NULL;
     if(learn)
