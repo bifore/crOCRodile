@@ -10,7 +10,6 @@
 Image *historietta_de_la_rotacion(Image *old_image, double angle);
 
 Vector *characters;
-int iter = 0;
 
 int max_array_pos(float *a, int nb)
 {
@@ -51,7 +50,7 @@ int find_rotation_angle(Image *image)
     int i = 0;
     for(int angle=-ANGLE; angle <= ANGLE; angle++)
     {
-        rHistogram(image, histo, angle);
+        r_histogram(image, histo, angle);
         variance[i] = get_variance(histo);
         
         i++;
@@ -109,7 +108,7 @@ Vector *detect_blocks(Image *surface)
 SDL_Rect *get_lines(Image *surface, int *nb, SDL_Rect *bounds)
 {
     int histo[surface->height];
-    vHistogramBounds(surface, histo, bounds);
+    v_histogram_bounds(surface, histo, bounds);
     SDL_Rect *lines = malloc(sizeof(SDL_Rect));
     
     int y = bounds->y;
@@ -152,35 +151,7 @@ SDL_Rect *get_lines(Image *surface, int *nb, SDL_Rect *bounds)
     }
     return lines;
 }
-void draw_blocks(Image *surface, Vector *vect)
-{
-    srand((unsigned int) time(NULL));
-    Uint8 c[3][3] = {{255, 0, 0}, {0, 255, 0}, {0, 0, 255}};
-    Uint32 color;
-    int p;
-    
-    int x, y, x1, y1;
-    for(int i = 0; i < vect->used; i++)
-    {
-        p = rand() % 3;
-        p = 1;
-        color = SDL_MapRGB(surface->format, c[p][0], c[p][1], c[p][2]);
-        x = vect->data[i].x;
-        y = vect->data[i].y;
-        x1 = x + vect->data[i].w;
-        y1 = y + vect->data[i].h;
-        for(int j = x; j < x1; j++)
-        {
-            set_pixel(surface, j, y, color);
-            set_pixel(surface, j, y1, color);
-        }
-        for(int j = y; j < y1; j++)
-        {
-            set_pixel(surface, x, j, color);
-            set_pixel(surface, x1, j, color);
-        }
-    }
-}
+
 void reset_array(int *array, int length)
 {
     for(int i=0; i < length; i++)
@@ -190,10 +161,9 @@ void reset_array(int *array, int length)
 }
 SDL_Rect *get_chars(Image *surface, SDL_Rect *lines, int length, int *nb)
 {
-    int *histo = calloc(surface->w, sizeof(int));
+    int *histo = calloc((size_t) surface->width, sizeof(int));
     SDL_Rect *chars = malloc(sizeof(SDL_Rect));
-    Uint32 pixel;
-    Uint8 g;
+    char pixel;
     
     for(int i = 0; i < length; i++)
     {
@@ -203,9 +173,8 @@ SDL_Rect *get_chars(Image *surface, SDL_Rect *lines, int length, int *nb)
             for(int y=lines[i].y; y - lines[i].y < lines[i].h; y++)
             {
                 pixel = get_pixel(surface, x, y);
-                SDL_GetRGB(pixel, surface->format, &g, &g, &g);
                 
-                if(g == 0)
+                if(pixel == 0)
                     histo[x] += 1;
             }
         }
@@ -228,16 +197,15 @@ SDL_Rect *get_chars(Image *surface, SDL_Rect *lines, int length, int *nb)
                 chars = realloc(chars, sizeof(SDL_Rect)*(*nb+1));
             }
         }
-        reset_array(histo, surface->w);
+        reset_array(histo, surface->width);
     }
     
     return chars;
 }
 void trim_chars(Image *surface, SDL_Rect *chars, int length)
 {
-    int *histo = calloc(surface->w, sizeof(int));
-    Uint32 pixel;
-    Uint8 g;
+    int *histo = calloc((size_t) surface->width, sizeof(int));
+    char pixel;
     int up;
     for(int i=0; i < length; i++)
     {
@@ -246,9 +214,7 @@ void trim_chars(Image *surface, SDL_Rect *chars, int length)
             for(int x = chars[i].x; x - chars[i].x < chars[i].w; x++)
             {
                 pixel = get_pixel(surface, x, y);
-                SDL_GetRGB(pixel, surface->format, &g, &g, &g);
-                
-                if(g == 0)
+                if(!pixel)
                     histo[y-chars[i].y] += 1;
             }
         }
@@ -272,7 +238,7 @@ void trim_chars(Image *surface, SDL_Rect *chars, int length)
                 chars[i].h = line - chars[i].y;
             }
         }
-        reset_array(histo, surface->w);
+        reset_array(histo, surface->width);
     }
 }
 

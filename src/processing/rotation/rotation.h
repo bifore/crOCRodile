@@ -21,8 +21,6 @@ Vector *detect_blocks(Image *surface);
 
 SDL_Rect *get_lines(Image *surface, int *nb, SDL_Rect *bounds);
 
-void draw_blocks(Image *surface, Vector *vect);
-
 void reset_array(int *array, int length);
 
 SDL_Rect *get_chars(Image *surface, SDL_Rect *lines, int length, int *nb);
