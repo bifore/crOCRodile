@@ -11,8 +11,7 @@ add_executable(crOCRodile ${SOURCE_FILES})
 
 # LIBRARIES LIST
 set(LIBRARIES
-        gtk+-3.0
-        sdl2)
+        gtk+-3.0)
 
 # LIBRARY LINKER
 message("-- LINKING LIBRARIES")

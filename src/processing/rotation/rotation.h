@@ -8,6 +8,13 @@
 
 #include <math.h>
 #include "../../util/image.h"
+#include "histogram.h"
+
+typedef struct
+{
+    int x, y;
+    int width, heigth;
+} Rectangle;
 
 int max_array_pos(float *a, int nb);
 
@@ -15,17 +22,17 @@ float get_variance(int *array);
 
 int find_rotation_angle(Image *image);
 
-int max_bounds(SDL_Rect *histo, int length);
+int max_bounds(Rectangle *histo, int length);
 
 Vector *detect_blocks(Image *surface);
 
-SDL_Rect *get_lines(Image *surface, int *nb, SDL_Rect *bounds);
+Rectangle *get_lines(Image *surface, int *nb, Rectangle *bounds);
 
 void reset_array(int *array, int length);
 
-SDL_Rect *get_chars(Image *surface, SDL_Rect *lines, int length, int *nb);
+Rectangle *get_chars(Image *surface, Rectangle *lines, int length, int *nb);
 
-void trim_chars(Image *surface, SDL_Rect *chars, int length);
+void trim_chars(Image *surface, Rectangle *chars, int length);
 
 double img_get_orientation_factor_radians(Image *image);
 

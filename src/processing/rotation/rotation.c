@@ -1,9 +1,4 @@
-#include <SDL_rect.h>
 #include "rotation.h"
-
-#include "../../util/maths.h"
-#include "histogram.h"
-#include "../../util/image.h"
 
 #define ANGLE 20
 
@@ -15,7 +10,7 @@ int max_array_pos(float *a, int nb)
 {
     float max = 0;
     int pos = 0;
-    for(int i = 0; i < nb; i++)
+    for (int i = 0; i < nb; i++)
     {
         if (a[i] > max)
         {
@@ -25,17 +20,18 @@ int max_array_pos(float *a, int nb)
     }
     return pos;
 }
+
 float get_variance(int *array)
 {
     float variance = 0;
     float average = 0;
     int nb = array[0];
-    for(int i=1; i <= nb; i++)
+    for (int i = 1; i <= nb; i++)
     {
         average += array[i];
     }
     average /= nb;
-    for(int i=1; i <= nb; i++)
+    for (int i = 1; i <= nb; i++)
     {
         variance += pow((array[i] - average), 2);
     }
@@ -43,12 +39,13 @@ float get_variance(int *array)
     
     return variance;
 }
+
 int find_rotation_angle(Image *image)
 {
     int histo[image->height + 1];
-    float variance[ANGLE*2 + 1];
+    float variance[ANGLE * 2 + 1];
     int i = 0;
-    for(int angle=-ANGLE; angle <= ANGLE; angle++)
+    for (int angle = -ANGLE; angle <= ANGLE; angle++)
     {
         r_histogram(image, histo, angle);
         variance[i] = get_variance(histo);
@@ -57,16 +54,18 @@ int find_rotation_angle(Image *image)
     }
     return -(-ANGLE + max_array_pos(variance, ANGLE * 2 + 1));
 }
-int max_bounds(SDL_Rect *histo, int length)
+
+int max_bounds(Rectangle *histo, int length)
 {
     int pos = 0;
-    for(int i = 0; i < length; i++)
+    for (int i = 0; i < length; i++)
     {
-        if(histo[i].w > histo[pos].w)
+        if (histo[i].width > histo[pos].width)
             pos = i;
     }
     return pos;
 }
+
 Vector *detect_blocks(Image *surface)
 {
     characters = vec_create(8);
@@ -79,70 +78,75 @@ Vector *detect_blocks(Image *surface)
     Image *img = img_from_matrix(matrix);
     
     int length = 0;
-    SDL_Rect bounds = {.x = 0, .y = 0, .w = surface->width, .h = surface->height - 1};
-    SDL_Rect *blocks = get_chars(img, &bounds, 1, &length);
-    for(int i = 0; i < length; i++)
+    Rectangle bounds = {
+            .x = 0,
+            .y = 0,
+            .width = surface->width,
+            .heigth = surface->height - 1
+    };
+    Rectangle *blocks = get_chars(img, &bounds, 1, &length);
+    for (int i = 0; i < length; i++)
     {
         // pour le show
         //add_vector(characters, &blocks[i]);
         int length2 = 0;
-        SDL_Rect *lines = get_lines(surface, &length2, &blocks[i]);
+        Rectangle *lines = get_lines(surface, &length2, &blocks[i]);
         
         // pour le show
         //for(int j = 0; j < length2; j++)
         //    add_vector(characters, &lines[j]);
         int length3 = 0;
-        SDL_Rect *chars = get_chars(surface, lines, length2, &length3);
+        Rectangle *chars = get_chars(surface, lines, length2, &length3);
         trim_chars(surface, chars, length3);
-        if(length3 == 0)
+        if (length3 == 0)
         {
-            for(int j = 0; j < length2; j++)
+            for (int j = 0; j < length2; j++)
                 vec_add(characters, &lines[j]);
         }
-        for(int k = 0; k < length3; k++)
+        for (int k = 0; k < length3; k++)
             vec_add(characters, &chars[k]);
     }
     
     return characters;
 }
-SDL_Rect *get_lines(Image *surface, int *nb, SDL_Rect *bounds)
+
+Rectangle *get_lines(Image *surface, int *nb, Rectangle *bounds)
 {
     int histo[surface->height];
     v_histogram_bounds(surface, histo, bounds);
-    SDL_Rect *lines = malloc(sizeof(SDL_Rect));
+    Rectangle *lines = malloc(sizeof(Rectangle));
     
     int y = bounds->y;
     int seuil = 0;
     int done = 1;
     int started = 0;
-    for(int line = bounds->y + 1; line - bounds->y < bounds->h - 1; line++)
+    for (int line = bounds->y + 1; line - bounds->y < bounds->heigth - 1; line++)
     {
         if (histo[line] == 0)
             seuil++;
-        if(histo[line] > 0 && histo[line-1] == 0 && !started)
+        if (histo[line] > 0 && histo[line - 1] == 0 && !started)
         {
-            if(seuil < 5 && !done)
+            if (seuil < 5 && !done)
             {
                 *nb -= 1;
                 done = 1;
                 y = line - seuil;
-            }
-            else
+            } else
             {
-                lines = realloc(lines, sizeof(SDL_Rect) * (*nb+1));
-                lines[*nb].h = 0;
+                lines = realloc(lines, sizeof(Rectangle) * (*nb + 1));
+                lines[*nb].heigth = 0;
                 lines[*nb].x = bounds->x;
                 lines[*nb].y = line - seuil;
-                lines[*nb].w = bounds->w;
+                lines[*nb].width = bounds->width;
                 
                 y = line - seuil;
                 started = 1;
             }
             seuil = 0;
         }
-        if((histo[line] > 0 && histo[line+1] == 0) && started)
+        if ((histo[line] > 0 && histo[line + 1] == 0) && started)
         {
-            lines[*nb].h = bounds->y + line - y + 1;
+            lines[*nb].heigth = bounds->y + line - y + 1;
             y = 0;
             *nb += 1;
             done = 0;
@@ -154,47 +158,46 @@ SDL_Rect *get_lines(Image *surface, int *nb, SDL_Rect *bounds)
 
 void reset_array(int *array, int length)
 {
-    for(int i=0; i < length; i++)
+    for (int i = 0; i < length; i++)
     {
         array[i] = 0;
     }
 }
-SDL_Rect *get_chars(Image *surface, SDL_Rect *lines, int length, int *nb)
+
+Rectangle *get_chars(Image *surface, Rectangle *lines, int length, int *nb)
 {
     int *histo = calloc((size_t) surface->width, sizeof(int));
-    SDL_Rect *chars = malloc(sizeof(SDL_Rect));
+    Rectangle *chars = malloc(sizeof(Rectangle));
     char pixel;
     
-    for(int i = 0; i < length; i++)
+    for (int i = 0; i < length; i++)
     {
         // histogramme
-        for(int x = lines[i].x; x - lines[i].x < lines[i].w; x++)
+        for (int x = lines[i].x; x - lines[i].x < lines[i].width; x++)
         {
-            for(int y=lines[i].y; y - lines[i].y < lines[i].h; y++)
+            for (int y = lines[i].y; y - lines[i].y < lines[i].heigth; y++)
             {
                 pixel = get_pixel(surface, x, y);
                 
-                if(pixel == 0)
+                if (pixel == 0)
                     histo[x] += 1;
             }
         }
         
-        // d�tection des caract�res
-        // d�passement de bornes ?
-        for(int column = lines[i].x; column - lines[i].x < lines[i].w;
-            column++)
+        for (int column = lines[i].x; column - lines[i].x < lines[i].width;
+             column++)
         {
-            if(histo[column] > 0 && histo[column-1] == 0)
+            if (histo[column] > 0 && histo[column - 1] == 0)
             {
                 chars[*nb].x = column;
                 chars[*nb].y = lines[i].y;
-                chars[*nb].h = lines[i].h;
+                chars[*nb].heigth = lines[i].heigth;
             }
-            if(histo[column] > 0 && histo[column+1] == 0)
+            if (histo[column] > 0 && histo[column + 1] == 0)
             {
-                chars[*nb].w = column - chars[*nb].x;
+                chars[*nb].width = column - chars[*nb].x;
                 *nb += 1;
-                chars = realloc(chars, sizeof(SDL_Rect)*(*nb+1));
+                chars = realloc(chars, sizeof(Rectangle) * (*nb + 1));
             }
         }
         reset_array(histo, surface->width);
@@ -202,40 +205,40 @@ SDL_Rect *get_chars(Image *surface, SDL_Rect *lines, int length, int *nb)
     
     return chars;
 }
-void trim_chars(Image *surface, SDL_Rect *chars, int length)
+
+void trim_chars(Image *surface, Rectangle *chars, int length)
 {
     int *histo = calloc((size_t) surface->width, sizeof(int));
     char pixel;
     int up;
-    for(int i=0; i < length; i++)
+    for (int i = 0; i < length; i++)
     {
-        for(int y = chars[i].y; y - chars[i].y < chars[i].h; y++)
+        for (int y = chars[i].y; y - chars[i].y < chars[i].heigth; y++)
         {
-            for(int x = chars[i].x; x - chars[i].x < chars[i].w; x++)
+            for (int x = chars[i].x; x - chars[i].x < chars[i].width; x++)
             {
                 pixel = get_pixel(surface, x, y);
-                if(!pixel)
-                    histo[y-chars[i].y] += 1;
+                if (!pixel)
+                    histo[y - chars[i].y] += 1;
             }
         }
         
         int ori_y = chars[i].y;
-        int ori_h = chars[i].h;
+        int ori_h = chars[i].heigth;
         up = 1;
         
-        for(int line = ori_y + 1; line - ori_y < ori_h - 1; line++)
+        for (int line = ori_y + 1; line - ori_y < ori_h - 1; line++)
         {
-            if((histo[line-ori_y] && !histo[line-ori_y-1] && up)
-               || (histo[0] && up))
+            if ((histo[line - ori_y] && !histo[line - ori_y - 1] && up) || (histo[0] && up))
             {
-                chars[i].h = chars[i].h - (line - chars[i].y);
+                chars[i].heigth = chars[i].heigth - (line - chars[i].y);
                 chars[i].y = line;
                 up = 0;
             }
             
-            if(histo[line-ori_y] && !histo[line-ori_y+1] && !histo[ori_h-1])
+            if (histo[line - ori_y] && !histo[line - ori_y + 1] && !histo[ori_h - 1])
             {
-                chars[i].h = line - chars[i].y;
+                chars[i].heigth = line - chars[i].y;
             }
         }
         reset_array(histo, surface->width);
@@ -270,7 +273,8 @@ double img_get_orientation_factor_radians(Image *image)
     int hypo = (int) sqrt((pow(lefty, 2) + pow(topx, 2)));
     double sin = (double) topx / (double) hypo;
     
-    if (hypo == 0) {
+    if (hypo == 0)
+    {
         sin = 0;
     }
     
@@ -287,7 +291,8 @@ Image *img_autorotate(Image *img)
 
 Image *img_rotate(Image *img, double degrees)
 {
-    if (degrees == 0.) {
+    if (degrees == 0.)
+    {
         printf("Rotation not needed.\n");
         return img;
     }
@@ -308,7 +313,7 @@ Image *historietta_de_la_rotacion(Image *old_image, double angle_deg)
     int ho = abs((int) (height * cos_rad)) + abs((int) (width * sin_rad));
     
     Image *new_img = malloc(sizeof(Image));
-    new_img->width= wo;
+    new_img->width = wo;
     new_img->height = ho;
     new_img->trueHeight = new_img->height;
     new_img->trueWidth = new_img->width;
@@ -326,7 +331,7 @@ Image *historietta_de_la_rotacion(Image *old_image, double angle_deg)
     
     for (int y = 0; y < ho; y++)
     {
-        for(int x = 0; x < wo; x++)
+        for (int x = 0; x < wo; x++)
         {
             /* New coordinates */
             int xo = (int) (ocx + (cos_rad * (x - ncx) + sin_rad * (y - ncy)));
