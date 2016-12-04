@@ -1,7 +1,3 @@
-//
-// Created by tristan9 on 12/4/16.
-//
-
 #ifndef CROCRODILE_ROTATION_H
 #define CROCRODILE_ROTATION_H
 
@@ -23,20 +19,10 @@ float get_variance(int *array);
 
 int find_rotation_angle(Image *image);
 
-int max_bounds(Rectangle *histo, int length);
+double find_rotation_angle_2(Image *image);
 
-Vector *detect_blocks(Image *surface);
+Image *rotate_auto_image(Image *img);
 
-Rectangle *get_lines(Image *surface, int *nb, Rectangle *bounds);
-
-void reset_array(int *array, int length);
-
-Rectangle *get_chars(Image *surface, Rectangle *lines, int length, int *nb);
-
-void trim_chars(Image *surface, Rectangle *chars, int length);
-
-Image *img_autorotate(Image *img);
-
-Image *img_rotate(Image *img, double radians);
+Image *rotate_manual_image(Image *img, double radians);
 
 #endif //CROCRODILE_ROTATION_H

@@ -352,5 +352,6 @@ int main(int argc, char**argv)
 {
     Image *img = img_create(img_load(TEST_SET_IMAGE_ROTATION));
     Image *cropped = img_crop_border(img, false);
-    img_autorotate(cropped);
+    Image *rotated = rotate_auto_image(cropped);
+    img_save(rotated, "IMG-ROT-ROTATED.bmp");
 }
