@@ -171,13 +171,13 @@ void draw_blocks(Image *surface, Vector *vect)
         y1 = y + vect->data[i].h;
         for(int j = x; j < x1; j++)
         {
-            setPixel(surface, j, y, color);
-            setPixel(surface, j, y1, color);
+            set_pixel(surface, j, y, color);
+            set_pixel(surface, j, y1, color);
         }
         for(int j = y; j < y1; j++)
         {
-            setPixel(surface, x, j, color);
-            setPixel(surface, x1, j, color);
+            set_pixel(surface, x, j, color);
+            set_pixel(surface, x1, j, color);
         }
     }
 }
@@ -202,7 +202,7 @@ SDL_Rect *get_chars(Image *surface, SDL_Rect *lines, int length, int *nb)
         {
             for(int y=lines[i].y; y - lines[i].y < lines[i].h; y++)
             {
-                pixel = getPixel(surface, x, y);
+                pixel = get_pixel(surface, x, y);
                 SDL_GetRGB(pixel, surface->format, &g, &g, &g);
                 
                 if(g == 0)
@@ -245,7 +245,7 @@ void trim_chars(Image *surface, SDL_Rect *chars, int length)
         {
             for(int x = chars[i].x; x - chars[i].x < chars[i].w; x++)
             {
-                pixel = getPixel(surface, x, y);
+                pixel = get_pixel(surface, x, y);
                 SDL_GetRGB(pixel, surface->format, &g, &g, &g);
                 
                 if(g == 0)
@@ -367,7 +367,7 @@ Image *historietta_de_la_rotacion(Image *old_image, double angle_deg)
             int yo = (int) (ocy + (cos_rad * (y - ncy) - sin_rad * (x - ncx)));
             if (xo >= 0 && yo >= 0 && xo < old_image->width && yo < old_image->height)
             {
-                setPixel(new_img, x, y, getPixel(old_image, xo, yo));
+                set_pixel(new_img, x, y, get_pixel(old_image, xo, yo));
             }
         }
     }

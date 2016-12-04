@@ -1,9 +1,5 @@
 #include "maths.h"
-#include "image.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <math.h>
 
@@ -150,7 +146,7 @@ Matrix *mat_from_img(Image *image)
     
     for (int y = 0; y < image->height; ++y)
         for (int x = 0; x < image->width; ++x)
-            raster_float[y*image->width + x] = getPixel(image, x, y) ? 1f : 0f;
+            raster_float[y*image->width + x] = get_pixel(image, x, y) ? 1f : 0f;
     
     return mat_create(image->width, image->height, raster_float);
 }
@@ -164,16 +160,16 @@ Image *img_from_matrix(Matrix *matrix) {
     img->x_root = -1;
     img->y_root = -1;
     
-    char * rasterrrr = malloc(matrix->width * matrix->height * sizeof(char));
+    char * new_raster = malloc(matrix->width * matrix->height * sizeof(char));
     for (int y = 0; y < matrix->height; ++y)
     {
         for (int x = 0; x < matrix->width; ++x)
         {
-            rasterrrr[y*matrix->width + x] = (char) matrix->mat[y * matrix->width + x];
+            new_raster[y*matrix->width + x] = (char) matrix->mat[y * matrix->width + x];
         }
     }
     
-    img->raster = rasterrrr;
+    img->raster = new_raster;
     return img;
 }
 
