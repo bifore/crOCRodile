@@ -2,22 +2,34 @@
 # include <stdio.h>
 # include <stdlib.h>
 
-# include "../io/image.h"
+# include "../io/image.c"
+
+GdkPixbuf *img_load(const char *name);
 
 static void show_lines(GtkWidget *widget, gpointer data)
 {
+    if (gtk_toggle_button_get_active((GtkToggleButton *) widget))
+    {
+        g_print ("LINES\n");
+    }
 }
 
 static void show_character(GtkWidget *widget, gpointer data)
 {
+    if (gtk_toggle_button_get_active((GtkToggleButton *) widget))
+    {
+        g_print ("CHARACTER\n");
+    }
 }
 
 static void detect(GtkWidget *widget, gpointer data)
 {
+    g_print ("DETECT\n");
 }
 
 static void learn(GtkWidget *widget, gpointer data)
 {
+    g_print ("LEARN\n");
 }
 
 static void chooser(GtkWidget *widget, gpointer *data)
@@ -59,8 +71,7 @@ activate(GtkApplication *app,
     GtkWidget *grid;
     GtkWidget *image;
     GtkWidget *imagedisplay;
-    GtkWidget *switchh;
-    GtkWidget *label;
+    GtkWidget *checkbutton;
 
     /* create a new window, and set its title */
 
@@ -115,27 +126,17 @@ activate(GtkApplication *app,
     gtk_grid_attach (GTK_GRID (grid), button, 0, 9, 1, 1);
     gtk_container_add (GTK_CONTAINER (window), grid);
 
-    /* creating show character switchh */
+    /* creating show character check button */
     
-    switchh = gtk_switch_new();
-    gtk_grid_attach (GTK_GRID (grid), switchh, 0, 13, 1, 1);
-    g_signal_connect (button, "clicked", G_CALLBACK (show_character), NULL);
+    checkbutton = gtk_check_button_new_with_label("Show Character");
+    gtk_grid_attach (GTK_GRID (grid), checkbutton, 0, 13, 1, 1);
+    g_signal_connect (checkbutton, "toggled", G_CALLBACK (show_character), NULL);
 
-    /* creating a label "show character" */
+    /* creating show lines check button */
 
-    label = gtk_label_new("Show Character");
-    gtk_grid_attach (GTK_GRID (grid), label, 0, 14, 1, 1);
-
-    /* creating show lines switch */
-
-    switchh = gtk_switch_new();
-    gtk_grid_attach (GTK_GRID (grid), switchh, 0, 18, 1, 1);
-    g_signal_connect (button, "clicked", G_CALLBACK (show_lines), NULL);
-
-    /* creating a label "show lines" */
-
-    label = gtk_label_new("Show Lines");
-    gtk_grid_attach (GTK_GRID (grid), label, 0, 19, 1, 1);
+    checkbutton = gtk_check_button_new_with_label("Show Lines");
+    gtk_grid_attach (GTK_GRID (grid), checkbutton, 0, 18, 1, 1);
+    g_signal_connect (checkbutton, "toggled", G_CALLBACK (show_lines), NULL);
 
     /* Now that we are done packing our widgets, we show them all in 
      * one go, by calling gtk_widget_show_all() on the window.
