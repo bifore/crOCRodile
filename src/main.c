@@ -13,7 +13,7 @@
 Vector *getFontList()
 {
     Vector *fonts = vec_create(2);
-    FILE *file = fopen("res/font.list", "r");
+    FILE *file = fopen("res/ann/font.list", "r");
     fseek(file, 0L, SEEK_END);
     int sz = (ftell(file) - 1) / 16;
     rewind(file);
@@ -31,7 +31,7 @@ Vector *loadAlphabet(char *font, int nb)
     Vector *alpha = vec_create(54);
     for(int i = 0; i < 26; ++i)
     {
-        char path[] = "res/________________/?.char";
+        char path[] = "res/ann/________________/?.char";
         for(int p = 0; p < 16; ++p)
             path[p + 4] = font[p];
         path[21] = 'a' + i;
@@ -42,7 +42,7 @@ Vector *loadAlphabet(char *font, int nb)
     }
     for(int i = 0; i < 26; ++i)
     {
-        char path[] = "res/________________/?.char";
+        char path[] = "res/ann/________________/?.char";
         for(int p = 0; p < 16; ++p)
             path[p + 4] = font[p];
         path[21] = 'A' + i;
@@ -52,7 +52,7 @@ Vector *loadAlphabet(char *font, int nb)
         vec_add(alpha, img);
     }
     {
-        char path[] = "res/________________/,.char";
+        char path[] = "res/ann/________________/,.char";
         for(int p = 0; p < 16; ++p)
             path[p + 4] = font[p];
         Image *img = img_read_bin(path);
@@ -61,7 +61,7 @@ Vector *loadAlphabet(char *font, int nb)
         vec_add(alpha, img);
     }
     {
-        char path[] = "res/________________/..char";
+        char path[] = "res/ann/________________/..char";
         for(int p = 0; p < 16; ++p)
             path[p + 4] = font[p];
         Image *img = img_read_bin(path);
@@ -138,7 +138,7 @@ int main(int argc, char **argv)
         printf("                          ________________\n");
         printf("Enter the new font name : ");
         scanf("%16s", newFontName);
-        char path[] = "res/________________";
+        char path[] = "res/ann/________________";
         for(int p = 0; p < 16; ++p)
             path[p + 4] = newFontName[p];
         mkdir(path, 0777);
@@ -202,7 +202,7 @@ int main(int argc, char **argv)
             char c = getchar();
             if(c != '\n')
             {
-                char path[] = "res/________________/?.char";
+                char path[] = "res/ann/________________/?.char";
                 for(int p = 0; p < 16; ++p)
                     path[p + 4] = newFontName[p];
                 path[21] = c;
