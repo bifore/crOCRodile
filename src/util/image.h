@@ -39,10 +39,8 @@ void _img_explore_character(Image *img, Vector *pixels, int x, int y);
 
 Image *img_normalize(Image *img, int size);
 
-double img_get_orientation_factor(Image *image);
+char get_pixel(Image *image, int xo, int yo);
 
-Image *img_autorotate(Image *img);
-
-Image *img_rotate(Image *img, double degrees);
+void set_pixel(Image *img, int x, int y, char pixel);
 
 #endif /* UTIL_IMAGE_H_ */
