@@ -12,7 +12,7 @@ Image *historietta_de_la_rotacion(Image *old_image, double angle);
 Vector *characters;
 int iter = 0;
 
-int maxArrayPos(float *a, int nb)
+int max_array_pos(float *a, int nb)
 {
     float max = 0;
     int pos = 0;
@@ -26,7 +26,7 @@ int maxArrayPos(float *a, int nb)
     }
     return pos;
 }
-float getVariance(int *array)
+float get_variance(int *array)
 {
     float variance = 0;
     float average = 0;
@@ -44,7 +44,7 @@ float getVariance(int *array)
     
     return variance;
 }
-int findAngle(Image *image)
+int find_rotation_angle(Image *image)
 {
     int histo[image->height + 1];
     float variance[ANGLE*2 + 1];
@@ -52,13 +52,13 @@ int findAngle(Image *image)
     for(int angle=-ANGLE; angle <= ANGLE; angle++)
     {
         rHistogram(image, histo, angle);
-        variance[i] = getVariance(histo);
+        variance[i] = get_variance(histo);
         
         i++;
     }
-    return -(-ANGLE + maxArrayPos(variance, ANGLE*2 + 1));
+    return -(-ANGLE + max_array_pos(variance, ANGLE * 2 + 1));
 }
-int maxSDL_Rect(SDL_Rect *histo, int length)
+int max_bounds(SDL_Rect *histo, int length)
 {
     int pos = 0;
     for(int i = 0; i < length; i++)
@@ -68,7 +68,7 @@ int maxSDL_Rect(SDL_Rect *histo, int length)
     }
     return pos;
 }
-Vector *detectBlocks(Image *surface)
+Vector *detect_blocks(Image *surface)
 {
     characters = vec_create(8);
     int w = surface->width;
@@ -81,20 +81,20 @@ Vector *detectBlocks(Image *surface)
     
     int length = 0;
     SDL_Rect bounds = {.x = 0, .y = 0, .w = surface->width, .h = surface->height - 1};
-    SDL_Rect *blocks = getChars(img, &bounds, 1, &length);
+    SDL_Rect *blocks = get_chars(img, &bounds, 1, &length);
     for(int i = 0; i < length; i++)
     {
         // pour le show
         //add_vector(characters, &blocks[i]);
         int length2 = 0;
-        SDL_Rect *lines = getLines(surface, &length2, &blocks[i]);
+        SDL_Rect *lines = get_lines(surface, &length2, &blocks[i]);
         
         // pour le show
         //for(int j = 0; j < length2; j++)
         //    add_vector(characters, &lines[j]);
         int length3 = 0;
-        SDL_Rect *chars = getChars(surface, lines, length2, &length3);
-        trimChars(surface, chars, length3);
+        SDL_Rect *chars = get_chars(surface, lines, length2, &length3);
+        trim_chars(surface, chars, length3);
         if(length3 == 0)
         {
             for(int j = 0; j < length2; j++)
@@ -106,7 +106,7 @@ Vector *detectBlocks(Image *surface)
     
     return characters;
 }
-SDL_Rect *getLines(Image *surface, int *nb, SDL_Rect *bounds)
+SDL_Rect *get_lines(Image *surface, int *nb, SDL_Rect *bounds)
 {
     int histo[surface->height];
     vHistogramBounds(surface, histo, bounds);
@@ -152,7 +152,7 @@ SDL_Rect *getLines(Image *surface, int *nb, SDL_Rect *bounds)
     }
     return lines;
 }
-void drawBlocks(Image *surface, Vector *vect)
+void draw_blocks(Image *surface, Vector *vect)
 {
     srand((unsigned int) time(NULL));
     Uint8 c[3][3] = {{255, 0, 0}, {0, 255, 0}, {0, 0, 255}};
@@ -181,14 +181,14 @@ void drawBlocks(Image *surface, Vector *vect)
         }
     }
 }
-void resetArray(int *array, int length)
+void reset_array(int *array, int length)
 {
     for(int i=0; i < length; i++)
     {
         array[i] = 0;
     }
 }
-SDL_Rect *getChars(Image *surface, SDL_Rect *lines, int length, int *nb)
+SDL_Rect *get_chars(Image *surface, SDL_Rect *lines, int length, int *nb)
 {
     int *histo = calloc(surface->w, sizeof(int));
     SDL_Rect *chars = malloc(sizeof(SDL_Rect));
@@ -228,12 +228,12 @@ SDL_Rect *getChars(Image *surface, SDL_Rect *lines, int length, int *nb)
                 chars = realloc(chars, sizeof(SDL_Rect)*(*nb+1));
             }
         }
-        resetArray(histo, surface->w);
+        reset_array(histo, surface->w);
     }
     
     return chars;
 }
-void trimChars(Image *surface, SDL_Rect *chars, int length)
+void trim_chars(Image *surface, SDL_Rect *chars, int length)
 {
     int *histo = calloc(surface->w, sizeof(int));
     Uint32 pixel;
@@ -272,7 +272,7 @@ void trimChars(Image *surface, SDL_Rect *chars, int length)
                 chars[i].h = line - chars[i].y;
             }
         }
-        resetArray(histo, surface->w);
+        reset_array(histo, surface->w);
     }
 }
 
