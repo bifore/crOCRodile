@@ -4,7 +4,13 @@
 
 #define ANGLE 20
 
-Image *historietta_de_la_rotacion(Image *old_image, double angle);
+//region PRIVATE METHODS
+
+Image *make_me_sway(Image *old_image, double angle);
+
+//endregion
+
+//region NON-WORKING
 
 int max_array_pos(float *a, int nb)
 {
@@ -55,6 +61,10 @@ int find_rotation_angle(Image *image)
     return -(-ANGLE + max_array_pos(variance, ANGLE * 2 + 1));
 }
 
+//endregion
+
+//region WRAPPERS
+
 Image *rotate_auto_image(Image *img)
 {
     double best_angle_degrees = find_rotation_angle(img);
@@ -70,16 +80,14 @@ Image *rotate_manual_image(Image *img, double degrees)
         return img;
     }
     printf("Applying a rotation of %lf degrees on image %p", degrees, img);
-    return historietta_de_la_rotacion(img, degrees);
+    return make_me_sway(img, degrees);
 }
 
-/**
- * supercool rotation
- * @param old_image the image to rotate
- * @param angle_deg the angle of which to rotate it
- * @return a copy of it, but resized and rotated
- */
-Image *historietta_de_la_rotacion(Image *old_image, double angle_deg)
+//endregion
+
+//region IMPLEMENTATION
+
+Image *make_me_sway(Image *old_image, double angle_deg)
 {
     /* Trigo */
     double cos_rad = cos(PI * angle_deg / 180);
@@ -124,3 +132,9 @@ Image *historietta_de_la_rotacion(Image *old_image, double angle_deg)
     return new_img;
 }
 
+double find_rotation_angle_2(Image *image)
+{
+    
+}
+
+//endregion

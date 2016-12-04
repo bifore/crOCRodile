@@ -19,6 +19,8 @@ float get_variance(int *array);
 
 int find_rotation_angle(Image *image);
 
+double find_rotation_angle_2(Image *image);
+
 Image *rotate_auto_image(Image *img);
 
 Image *rotate_manual_image(Image *img, double radians);
