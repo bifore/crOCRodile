@@ -1,4 +1,6 @@
 #include "rotation.h"
+#include "histogram.h"
+#include <math.h>
 
 #define ANGLE 20
 
@@ -79,8 +81,8 @@ Vector *detect_blocks(Image *surface)
     
     int length = 0;
     Rectangle bounds = {
-            .x = 0,
-            .y = 0,
+            .orig_x = 0,
+            .orig_y = 0,
             .width = surface->width,
             .heigth = surface->height - 1
     };
@@ -116,11 +118,11 @@ Rectangle *get_lines(Image *surface, int *nb, Rectangle *bounds)
     v_histogram_bounds(surface, histo, bounds);
     Rectangle *lines = malloc(sizeof(Rectangle));
     
-    int y = bounds->y;
+    int y = bounds->orig_y;
     int seuil = 0;
     int done = 1;
     int started = 0;
-    for (int line = bounds->y + 1; line - bounds->y < bounds->heigth - 1; line++)
+    for (int line = bounds->orig_y + 1; line - bounds->orig_y < bounds->heigth - 1; line++)
     {
         if (histo[line] == 0)
             seuil++;
@@ -135,8 +137,8 @@ Rectangle *get_lines(Image *surface, int *nb, Rectangle *bounds)
             {
                 lines = realloc(lines, sizeof(Rectangle) * (*nb + 1));
                 lines[*nb].heigth = 0;
-                lines[*nb].x = bounds->x;
-                lines[*nb].y = line - seuil;
+                lines[*nb].orig_x = bounds->orig_x;
+                lines[*nb].orig_y = line - seuil;
                 lines[*nb].width = bounds->width;
                 
                 y = line - seuil;
@@ -146,7 +148,7 @@ Rectangle *get_lines(Image *surface, int *nb, Rectangle *bounds)
         }
         if ((histo[line] > 0 && histo[line + 1] == 0) && started)
         {
-            lines[*nb].heigth = bounds->y + line - y + 1;
+            lines[*nb].heigth = bounds->orig_y + line - y + 1;
             y = 0;
             *nb += 1;
             done = 0;
@@ -173,9 +175,9 @@ Rectangle *get_chars(Image *surface, Rectangle *lines, int length, int *nb)
     for (int i = 0; i < length; i++)
     {
         // histogramme
-        for (int x = lines[i].x; x - lines[i].x < lines[i].width; x++)
+        for (int x = lines[i].orig_x; x - lines[i].orig_x < lines[i].width; x++)
         {
-            for (int y = lines[i].y; y - lines[i].y < lines[i].heigth; y++)
+            for (int y = lines[i].orig_y; y - lines[i].orig_y < lines[i].heigth; y++)
             {
                 pixel = get_pixel(surface, x, y);
                 
@@ -184,18 +186,18 @@ Rectangle *get_chars(Image *surface, Rectangle *lines, int length, int *nb)
             }
         }
         
-        for (int column = lines[i].x; column - lines[i].x < lines[i].width;
+        for (int column = lines[i].orig_x; column - lines[i].orig_x < lines[i].width;
              column++)
         {
             if (histo[column] > 0 && histo[column - 1] == 0)
             {
-                chars[*nb].x = column;
-                chars[*nb].y = lines[i].y;
+                chars[*nb].orig_x = column;
+                chars[*nb].orig_y = lines[i].orig_y;
                 chars[*nb].heigth = lines[i].heigth;
             }
             if (histo[column] > 0 && histo[column + 1] == 0)
             {
-                chars[*nb].width = column - chars[*nb].x;
+                chars[*nb].width = column - chars[*nb].orig_x;
                 *nb += 1;
                 chars = realloc(chars, sizeof(Rectangle) * (*nb + 1));
             }
@@ -213,17 +215,17 @@ void trim_chars(Image *surface, Rectangle *chars, int length)
     int up;
     for (int i = 0; i < length; i++)
     {
-        for (int y = chars[i].y; y - chars[i].y < chars[i].heigth; y++)
+        for (int y = chars[i].orig_y; y - chars[i].orig_y < chars[i].heigth; y++)
         {
-            for (int x = chars[i].x; x - chars[i].x < chars[i].width; x++)
+            for (int x = chars[i].orig_x; x - chars[i].orig_x < chars[i].width; x++)
             {
                 pixel = get_pixel(surface, x, y);
                 if (!pixel)
-                    histo[y - chars[i].y] += 1;
+                    histo[y - chars[i].orig_y] += 1;
             }
         }
         
-        int ori_y = chars[i].y;
+        int ori_y = chars[i].orig_y;
         int ori_h = chars[i].heigth;
         up = 1;
         
@@ -231,61 +233,24 @@ void trim_chars(Image *surface, Rectangle *chars, int length)
         {
             if ((histo[line - ori_y] && !histo[line - ori_y - 1] && up) || (histo[0] && up))
             {
-                chars[i].heigth = chars[i].heigth - (line - chars[i].y);
-                chars[i].y = line;
+                chars[i].heigth = chars[i].heigth - (line - chars[i].orig_y);
+                chars[i].orig_y = line;
                 up = 0;
             }
             
             if (histo[line - ori_y] && !histo[line - ori_y + 1] && !histo[ori_h - 1])
             {
-                chars[i].heigth = line - chars[i].y;
+                chars[i].heigth = line - chars[i].orig_y;
             }
         }
         reset_array(histo, surface->width);
     }
 }
 
-double img_get_orientation_factor_radians(Image *image)
-{
-    int topx = 0;
-    int lefty = 0;
-    
-    for (int i = 0; i < image->width; ++i)
-    {
-        if (image->raster[i])
-        {
-            topx = i;
-            break;
-        }
-    }
-    for (int i = 0; i < image->height; ++i)
-    {
-        if (image->raster[i * image->width])
-        {
-            lefty = i;
-            break;
-        }
-    }
-    
-    printf("Found left intersection : %d\n", lefty);
-    printf("Found top intersection : %d\n", topx);
-    
-    int hypo = (int) sqrt((pow(lefty, 2) + pow(topx, 2)));
-    double sin = (double) topx / (double) hypo;
-    
-    if (hypo == 0)
-    {
-        sin = 0;
-    }
-    
-    printf("sin(α) = %.6lf\n", sin);
-    printf("Needing rotation of : %.1lf degrees.\n", asin(sin) * 180 / PI);
-    return asin(sin);
-}
-
 Image *img_autorotate(Image *img)
 {
-    double best_angle_degrees = img_get_orientation_factor_radians(img);
+    double best_angle_degrees = find_rotation_angle(img);
+    printf("Automatically suggested rotation angle : %lf", best_angle_degrees);
     return img_rotate(img, best_angle_degrees);
 }
 
@@ -296,6 +261,7 @@ Image *img_rotate(Image *img, double degrees)
         printf("Rotation not needed.\n");
         return img;
     }
+    printf("Applying a rotation of %lf degrees on image %p", degrees, img);
     return historietta_de_la_rotacion(img, degrees);
 }
 
@@ -347,6 +313,44 @@ Image *historietta_de_la_rotacion(Image *old_image, double angle_deg)
 
 //region ROTATION FUNCTIONS GRAVEYARD
 /*
+double img_get_orientation_factor_radians(Image *image)
+{
+    int topx = 0;
+    int lefty = 0;
+    
+    for (int i = 0; i < image->width; ++i)
+    {
+        if (image->raster[i])
+        {
+            topx = i;
+            break;
+        }
+    }
+    for (int i = 0; i < image->height; ++i)
+    {
+        if (image->raster[i * image->width])
+        {
+            lefty = i;
+            break;
+        }
+    }
+    
+    printf("Found left intersection : %d\n", lefty);
+    printf("Found top intersection : %d\n", topx);
+    
+    int hypo = (int) sqrt((pow(lefty, 2) + pow(topx, 2)));
+    double sin = (double) topx / (double) hypo;
+    
+    if (hypo == 0)
+    {
+        sin = 0;
+    }
+    
+    printf("sin(α) = %.6lf\n", sin);
+    printf("Needing rotation of : %.1lf degrees.\n", asin(sin) * 180 / PI);
+    return asin(sin);
+}
+
 void img_superfast_rotate(
         bool *destination, int dest_width, int dest_heigth, int dest_delta,
         bool *source, int src_width, int src_heigth, int src_delta,
@@ -369,14 +373,14 @@ void img_superfast_rotate(
     float rowv = startingv;
 
 
-    for (int y = 0; y < dest_heigth; y++)
+    for (int orig_y = 0; orig_y < dest_heigth; orig_y++)
     {
         float u = rowu;
         float v = rowv;
 
-        bool *pDst = destination + (dest_delta * y);
+        bool *pDst = destination + (dest_delta * orig_y);
 
-        for (int x = 0; x < dest_width; x++)
+        for (int orig_x = 0; orig_x < dest_width; orig_x++)
         {
             if (u > 0 && v > 0 && u < src_width && v < src_heigth)
             {
@@ -404,14 +408,14 @@ void img_dumb_rotate(Image *origin, Image *destination, double angle_radians)
     printf("Rotating using angle : %lf radians\n", angle_radians);
     printf("                    -> %lf degrees\n", angle_radians * 180 / PI);
 
-    for (int y = 0; y < height; ++y)
+    for (int orig_y = 0; orig_y < height; ++orig_y)
     {
-        for (int x = 0; x < width; ++x)
+        for (int orig_x = 0; orig_x < width; ++orig_x)
         {
-            int u = (int) (cos(-angle_radians) * x + sin(-angle_radians) * y);
-            int v = (int) (-sin(-angle_radians) * x + cos(-angle_radians) * y);
-            //printf("%d,%d %d,%d\n", u, v, x, y);
-            destination->raster[(v + height / 2) * width + (u + width / 2)] = origin->raster[y * width + x];
+            int u = (int) (cos(-angle_radians) * orig_x + sin(-angle_radians) * orig_y);
+            int v = (int) (-sin(-angle_radians) * orig_x + cos(-angle_radians) * orig_y);
+            //printf("%d,%d %d,%d\n", u, v, orig_x, orig_y);
+            destination->raster[(v + height / 2) * width + (u + width / 2)] = origin->raster[orig_y * width + orig_x];
         }
     }
 }

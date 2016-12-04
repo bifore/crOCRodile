@@ -1,5 +1,6 @@
-
 #include "rotation.h"
+#include "../../util/maths.h"
+#include <math.h>
 
 void gray_histogram(Image *surface, int *array)
 {
@@ -36,10 +37,10 @@ void v_histogram_bounds(Image *surface, int *array, Rectangle *bounds)
 {
     char pixel;
     int sum;
-    for (int y = bounds->y; y - bounds->y < bounds->heigth; y++)
+    for (int y = bounds->orig_y; y - bounds->orig_y < bounds->heigth; y++)
     {
         sum = 0;
-        for (int x = bounds->x; x - bounds->x < bounds->width; x++)
+        for (int x = bounds->orig_x; x - bounds->orig_x < bounds->width; x++)
         {
             pixel = get_pixel(surface, x, y);
             
@@ -72,10 +73,10 @@ void h_histogram_bounds(Image *surface, int *array, Rectangle *bounds)
 {
     char pixel;
     int sum;
-    for (int x = bounds->x; x - bounds->x < bounds->width; x++)
+    for (int x = bounds->orig_x; x - bounds->orig_x < bounds->width; x++)
     {
         sum = 0;
-        for (int y = bounds->y; y - bounds->y < bounds->heigth; y++)
+        for (int y = bounds->orig_y; y - bounds->orig_y < bounds->heigth; y++)
         {
             pixel = get_pixel(surface, x, y);
             
@@ -91,7 +92,7 @@ void r_histogram(Image *surface, int *array, int angle)
     char pixel;
     float tany = 0;
     int nx = 0;
-    int ny = 0; // nouvelles valeurs pour x et y
+    int ny = 0; // nouvelles valeurs pour orig_x et orig_y
     int sum;
     int processed = 0;
     for (int y = 0; y < surface->height; y++)

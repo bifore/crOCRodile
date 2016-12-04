@@ -171,7 +171,7 @@ Image *img_crop_border(Image *img, int ip)
 
 void img_print(const Image *img)
 {
-    printf("D => (%i x %i) ", img->width, img->height);
+    printf("D => (%i orig_x %i) ", img->width, img->height);
     printf("@ => (%i, %i)\n/", img->x_root, img->y_root);
     for (int x = 0; x < img->width; ++x)
         printf("-");

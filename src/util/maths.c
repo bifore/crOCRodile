@@ -146,7 +146,7 @@ Matrix *mat_from_img(Image *image)
     
     for (int y = 0; y < image->height; ++y)
         for (int x = 0; x < image->width; ++x)
-            raster_float[y*image->width + x] = get_pixel(image, x, y) ? 1f : 0f;
+            raster_float[y*image->width + x] = get_pixel(image, x, y) ? 1.f : 0.f;
     
     return mat_create(image->width, image->height, raster_float);
 }
@@ -184,11 +184,11 @@ Matrix *and_matrix(Matrix *mat1, Matrix *mat2)
     {
         for (int x = 0; x < width; ++x)
         {
-            float mat1p = NULL;
+            float mat1p = 0.f;
             if (mat1->width >= x+1 && mat1->height >= y+1) {
                 mat1p = mat1->mat[y*width+x];
             }
-            float mat2p = NULL;
+            float mat2p = 0.f;
             if (mat2->width >= x+1 && mat2->height >= y+1) {
                 mat2p = mat2->mat[y*width+x];
             }

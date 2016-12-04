@@ -6,7 +6,6 @@
 #define CROCRODILE_HISTOGRAM_H
 
 #include "../../util/maths.h"
-#include "rotation.h"
 
 void gray_histogram(Image *surface, int *array);
 void v_histogram(Image *surface, int *array);
