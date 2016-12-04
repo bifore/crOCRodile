@@ -4,34 +4,45 @@
 
 #include <limits.h>
 #include "binarizator.h"
+#include "../util/image.h"
 
 int average_color(guchar *p);
 
 guchar *get_point_delta(guchar *orig, int dx, int dy, int row_s, int col_s);
 
-void binarize_around(guchar *ori,
-                     char *raster,
+void binarize_around(guchar *original_raster,
+                     char *bin_raster,
                      int y,
                      int row_s,
                      int x,
-                     int col_s,
-                     float percent_tolerance);
+                     int col_s);
 
-Image *binarize(GdkPixbuf *file, float percent_tolerance)
+Image *binarize(GdkPixbuf *file)
 {
-    printf("Starting binarization\n");
-    Image *img = (Image *) malloc(sizeof(Image));
-
+    printf("Starting binarization...\n");
+    
+    Image *img;
+    
+    //region GET_ITERATION_DATA
     guchar *origin = gdk_pixbuf_get_pixels(file);
     int col_s = gdk_pixbuf_get_has_alpha(file) ? 4 : 3;
     int row_s = gdk_pixbuf_get_rowstride(file);
+    
+    printf("Image has a col_s and row_s of (%d, %d)", col_s, row_s);
+    //endregion
+    
+    //region INIT_NEW_IMAGE
+    img = (Image *) malloc(sizeof(Image));
     img->width = gdk_pixbuf_get_width(file);
     img->height = gdk_pixbuf_get_height(file);
-
+    img->trueHeight = img->height;
+    img->trueWidth = img->trueWidth;
     img->x_root = 0;
     img->y_root = 0;
-
     img->raster = (char *) malloc(img->width * img->height * sizeof(char));
+    //endregion
+    
+    //region ITARATION
     for (int y = 0; y < img->height; ++y) {
         for (int x = 0; x < img->width; ++x) {
             guchar *p = origin + y * row_s + x * col_s;
@@ -41,31 +52,33 @@ Image *binarize(GdkPixbuf *file, float percent_tolerance)
                     y,
                     img->height,
                     x,
-                    img->width,
-                    percent_tolerance
+                    img->width
             );
         }
     }
+    //endregion
+    
     return img;
 }
 
+
+
 void binarize_around(
-        guchar *ori,
-        char *raster,
+        guchar *original_raster,
+        char *bin_raster,
         int y,
         int row_s,
         int x,
-        int col_s,
-        float percent_tolerance)
+        int col_s)
 {
-    guchar *p_ul = get_point_delta(ori, -1, -1, row_s, col_s);
-    guchar *p_uc = get_point_delta(ori, 0, -1, row_s, col_s);
-    guchar *p_ur = get_point_delta(ori, +1, -1, row_s, col_s);
-    guchar *p_ml = get_point_delta(ori, -1, 0, row_s, col_s);
-    guchar *p_mr = get_point_delta(ori, +1, 0, row_s, col_s);
-    guchar *p_dl = get_point_delta(ori, -1, +1, row_s, col_s);
-    guchar *p_dc = get_point_delta(ori, 0, +1, row_s, col_s);
-    guchar *p_dr = get_point_delta(ori, +1, +1, row_s, col_s);
+    guchar *p_ul = get_point_delta(original_raster, -1, -1, row_s, col_s);
+    guchar *p_uc = get_point_delta(original_raster, 0, -1, row_s, col_s);
+    guchar *p_ur = get_point_delta(original_raster, +1, -1, row_s, col_s);
+    guchar *p_ml = get_point_delta(original_raster, -1, 0, row_s, col_s);
+    guchar *p_mr = get_point_delta(original_raster, +1, 0, row_s, col_s);
+    guchar *p_dl = get_point_delta(original_raster, -1, +1, row_s, col_s);
+    guchar *p_dc = get_point_delta(original_raster, 0, +1, row_s, col_s);
+    guchar *p_dr = get_point_delta(original_raster, +1, +1, row_s, col_s);
 
     int ul_bounds = x - 1 >= 0 && y - 1 >= 0;
     int uc_bounds = y - 1 >= 0;
@@ -106,24 +119,24 @@ void binarize_around(
         sum += around[i] != INT_MIN ? around[i] : 0;
     }
 
-    float mean = ((float) sum / (float) valid) - ((float) 255. * percent_tolerance);
+    float mean = ((float) sum / (float) valid);
 
     if (ul_bounds)
-        raster[(y - 1) * row_s + (x - 1)] = ul > mean;
+        bin_raster[(y - 1) * row_s + (x - 1)] = ul > mean;
     if (uc_bounds)
-        raster[(y - 1) * row_s + x] = uc > mean;
+        bin_raster[(y - 1) * row_s + x] = uc > mean;
     if (ur_bounds)
-        raster[(y - 1) * row_s + (x + 1)] = ur > mean;
+        bin_raster[(y - 1) * row_s + (x + 1)] = ur > mean;
     if (ml_bounds)
-        raster[y * row_s + (x - 1)] = ml > mean;
+        bin_raster[y * row_s + (x - 1)] = ml > mean;
     if (mr_bounds)
-        raster[y * row_s + (x + 1)] = mr > mean;
+        bin_raster[y * row_s + (x + 1)] = mr > mean;
     if (dl_bounds)
-        raster[(y + 1) * row_s + (x - 1)] = dl > mean;
+        bin_raster[(y + 1) * row_s + (x - 1)] = dl > mean;
     if (dc_bounds)
-        raster[(y + 1) * row_s + x] = dc > mean;
+        bin_raster[(y + 1) * row_s + x] = dc > mean;
     if (dr_bounds)
-        raster[(y + 1) * row_s + (x + 1)] = dr > mean;
+        bin_raster[(y + 1) * row_s + (x + 1)] = dr > mean;
 }
 
 int average_color(guchar *p)

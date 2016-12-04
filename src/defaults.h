@@ -1,7 +1,7 @@
 #ifndef DEFAULTS_H_
 #define DEFAULTS_H_
 
-#define TEST_SET_FOLDER "res/testset/"
+#define TEST_SET_FOLDER "img/"
 
 #define TEST_SET_IMAGE_NORMAL_NOSUFFIX      "image_normal"
 #define TEST_SET_IMAGE_LOREM_NOSUFFIX       "image_lorem"
