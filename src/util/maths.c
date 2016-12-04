@@ -176,3 +176,29 @@ Image *img_from_matrix(Matrix *matrix) {
     img->raster = rasterrrr;
     return img;
 }
+
+Matrix *and_matrix(Matrix *mat1, Matrix *mat2)
+{
+    int width = mat1->width >= mat2->width ? mat1->width : mat2->width;
+    int height = mat1->height >= mat2->height ? mat1->height : mat2->height;
+    
+    Matrix *and_mat = mat_create(width, height, NULL);
+    
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            float mat1p = NULL;
+            if (mat1->width >= x+1 && mat1->height >= y+1) {
+                mat1p = mat1->mat[y*width+x];
+            }
+            float mat2p = NULL;
+            if (mat2->width >= x+1 && mat2->height >= y+1) {
+                mat2p = mat2->mat[y*width+x];
+            }
+            and_mat->mat[y*width+x] = (int) mat1p & (int) mat2p;
+        }
+    }
+    
+    return and_mat;
+}

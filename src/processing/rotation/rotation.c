@@ -76,7 +76,7 @@ Vector *detectBlocks(Image *surface)
     
     //int **matrix = mat_from_img(surface);
     Matrix *matrix = mat_from_img(surface);
-    matrix = andMatrix(hrlsa(matrix), vrlsa(matrix), w, h);
+    matrix = and_matrix(hrlsa(matrix), vrlsa(matrix));
     Image *img = img_from_matrix(matrix);
     
     int length = 0;
