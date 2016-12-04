@@ -4,10 +4,18 @@
 
 #ifndef CROCRODILE_ROTATION_H
 #define CROCRODILE_ROTATION_H
+
+#include "../../util/image.h"
+
 #define PI 3.14159265358979323846
 
-#include <math.h>
-#include "../../util/image.h"
+typedef struct
+{
+    int orig_x;
+    int orig_y;
+    int width;
+    int heigth;
+} Rectangle;
 
 int max_array_pos(float *a, int nb);
 
@@ -15,21 +23,17 @@ float get_variance(int *array);
 
 int find_rotation_angle(Image *image);
 
-int max_bounds(SDL_Rect *histo, int length);
+int max_bounds(Rectangle *histo, int length);
 
 Vector *detect_blocks(Image *surface);
 
-SDL_Rect *get_lines(Image *surface, int *nb, SDL_Rect *bounds);
-
-void draw_blocks(Image *surface, Vector *vect);
+Rectangle *get_lines(Image *surface, int *nb, Rectangle *bounds);
 
 void reset_array(int *array, int length);
 
-SDL_Rect *get_chars(Image *surface, SDL_Rect *lines, int length, int *nb);
+Rectangle *get_chars(Image *surface, Rectangle *lines, int length, int *nb);
 
-void trim_chars(Image *surface, SDL_Rect *chars, int length);
-
-double img_get_orientation_factor_radians(Image *image);
+void trim_chars(Image *surface, Rectangle *chars, int length);
 
 Image *img_autorotate(Image *img);
 

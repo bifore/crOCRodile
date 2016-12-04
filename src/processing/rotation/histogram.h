@@ -7,12 +7,12 @@
 
 #include "../../util/maths.h"
 
-void grayHistogram(Image *surface, int *array);
-void vHistogram(Image *surface, int *array);
-void vHistogramBounds(Image *surface, int *array, SDL_Rect *bounds);
-void hHistogram(Image *surface, int *array);
-void hHistogramBounds(Image *surface, int *array, SDL_Rect *bounds);
-void rHistogram(Image *surface, int *array, int angle);
+void gray_histogram(Image *surface, int *array);
+void v_histogram(Image *surface, int *array);
+void v_histogram_bounds(Image *surface, int *array, Rectangle *bounds);
+void h_histogram(Image *surface, int *array);
+void h_histogram_bounds(Image *surface, int *array, Rectangle *bounds);
+void r_histogram(Image *surface, int *array, int angle);
 Matrix *hrlsa(Matrix *matrix);
 Matrix *vrlsa(Matrix *matrix);
 

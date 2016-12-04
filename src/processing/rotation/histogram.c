@@ -1,10 +1,8 @@
-#include <math.h>
-#include <SDL_rect.h>
-#include "../../util/image.h"
-#include "histogram.h"
 #include "rotation.h"
+#include "../../util/maths.h"
+#include <math.h>
 
-void grayHistogram(Image *surface, int *array)
+void gray_histogram(Image *surface, int *array)
 {
     char pixel;
     for (int y = 0; y < surface->height; y++)
@@ -17,7 +15,7 @@ void grayHistogram(Image *surface, int *array)
     }
 }
 
-void vHistogram(Image *surface, int *array)
+void v_histogram(Image *surface, int *array)
 {
     char pixel;
     int sum;
@@ -35,14 +33,14 @@ void vHistogram(Image *surface, int *array)
     }
 }
 
-void vHistogramBounds(Image *surface, int *array, SDL_Rect *bounds)
+void v_histogram_bounds(Image *surface, int *array, Rectangle *bounds)
 {
     char pixel;
     int sum;
-    for (int y = bounds->y; y - bounds->y < bounds->h; y++)
+    for (int y = bounds->orig_y; y - bounds->orig_y < bounds->heigth; y++)
     {
         sum = 0;
-        for (int x = bounds->x; x - bounds->x < bounds->w; x++)
+        for (int x = bounds->orig_x; x - bounds->orig_x < bounds->width; x++)
         {
             pixel = get_pixel(surface, x, y);
             
@@ -53,7 +51,7 @@ void vHistogramBounds(Image *surface, int *array, SDL_Rect *bounds)
     }
 }
 
-void hHistogram(Image *surface, int *array)
+void h_histogram(Image *surface, int *array)
 {
     char pixel;
     int sum;
@@ -71,14 +69,14 @@ void hHistogram(Image *surface, int *array)
     }
 }
 
-void hHistogramBounds(Image *surface, int *array, SDL_Rect *bounds)
+void h_histogram_bounds(Image *surface, int *array, Rectangle *bounds)
 {
     char pixel;
     int sum;
-    for (int x = bounds->x; x - bounds->x < bounds->w; x++)
+    for (int x = bounds->orig_x; x - bounds->orig_x < bounds->width; x++)
     {
         sum = 0;
-        for (int y = bounds->y; y - bounds->y < bounds->h; y++)
+        for (int y = bounds->orig_y; y - bounds->orig_y < bounds->heigth; y++)
         {
             pixel = get_pixel(surface, x, y);
             
@@ -89,12 +87,12 @@ void hHistogramBounds(Image *surface, int *array, SDL_Rect *bounds)
     }
 }
 
-void rHistogram(Image *surface, int *array, int angle)
+void r_histogram(Image *surface, int *array, int angle)
 {
     char pixel;
     float tany = 0;
     int nx = 0;
-    int ny = 0; // nouvelles valeurs pour x et y
+    int ny = 0; // nouvelles valeurs pour orig_x et orig_y
     int sum;
     int processed = 0;
     for (int y = 0; y < surface->height; y++)
