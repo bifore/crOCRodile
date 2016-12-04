@@ -2,6 +2,7 @@
 #include <SDL_rect.h>
 #include "../../util/image.h"
 #include "histogram.h"
+#include "../../util/maths.h"
 
 void grayHistogram(Image *surface, int *array)
 {
@@ -128,20 +129,20 @@ void rHistogram(Image *surface, int *array, int angle)
     }
     array[0] = processed;
 }
-int **hrlsa(int **matrix, int width, int height)
+Matrix *hrlsa(Matrix *matrix)
 {
     int nb;
-    for(int y = 0; y < height; y++)
+    for(int y = 0; y < matrix->height; y++)
     {
         nb = 0;
-        for(int x = 0; x < width; x++)
+        for(int x = 0; x < matrix->width; x++)
         {
-            if(!matrix[x][y])
+            if(!matrix->mat[y*matrix->width+x])
             {
                 if(nb < 45)
                 {
                     for(int i = x - nb; i < x; i++)
-                        matrix[i][y] = 0;
+                        matrix->mat[y*matrix->width+i] = 0;
                 }
                 nb = 0;
             }
@@ -153,20 +154,20 @@ int **hrlsa(int **matrix, int width, int height)
     }
     return matrix;
 }
-int **vrlsa(int **matrix, int width, int height)
+Matrix *vrlsa(Matrix *matrix)
 {
     int nb;
-    for(int y = 0; y < height; y++)
+    for(int y = 0; y < matrix->height; y++)
     {
         nb = 0;
-        for(int x = 0; x < width; x++)
+        for(int x = 0; x < matrix->width; x++)
         {
-            if(!matrix[x][y])
+            if(!matrix->mat[y*matrix->width+x])
             {
                 if(nb < 20)
                 {
                     for(int i = y - nb; i < y; i++)
-                        matrix[x][i] = 0;
+                        matrix->mat[i*matrix->width+x] = 0;
                 }
                 nb = 0;
             }

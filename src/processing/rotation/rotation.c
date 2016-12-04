@@ -1,11 +1,13 @@
+#include <SDL_rect.h>
 #include "rotation.h"
 
-#include "../../util/image.h"
 #include "../../util/maths.h"
+#include "histogram.h"
+#include "../../util/image.h"
 
 #define ANGLE 20
 
-Image *img_c_sucks_balls_rotate(Image *old_image, double angle);
+Image *historietta_de_la_rotacion(Image *old_image, double angle);
 
 Vector *characters;
 int iter = 0;
@@ -72,13 +74,13 @@ Vector *detectBlocks(Image *surface)
     int w = surface->width;
     int h = surface->height;
     
-    int **matrix = imgToMatrix(surface);
-    matrix = andMatrix(hrlsa(matrix, w, h), vrlsa(matrix, w, h), w, h);
-    SDL_Surface *img = matrixToImg(matrix, w, h);
-    SDL_SavePNG(img, "rlsa.png");
+    //int **matrix = mat_from_img(surface);
+    Matrix *matrix = mat_from_img(surface);
+    matrix = andMatrix(hrlsa(matrix), vrlsa(matrix), w, h);
+    Image *img = img_from_matrix(matrix);
     
     int length = 0;
-    SDL_Rect bounds = {.x = 0, .y = 0, .w = surface->w, .h = surface->h - 1};
+    SDL_Rect bounds = {.x = 0, .y = 0, .w = surface->width, .h = surface->height - 1};
     SDL_Rect *blocks = getChars(img, &bounds, 1, &length);
     for(int i = 0; i < length; i++)
     {
@@ -106,7 +108,7 @@ Vector *detectBlocks(Image *surface)
 }
 SDL_Rect *getLines(Image *surface, int *nb, SDL_Rect *bounds)
 {
-    int histo[surface->h];
+    int histo[surface->height];
     vHistogramBounds(surface, histo, bounds);
     SDL_Rect *lines = malloc(sizeof(SDL_Rect));
     
@@ -152,12 +154,11 @@ SDL_Rect *getLines(Image *surface, int *nb, SDL_Rect *bounds)
 }
 void drawBlocks(Image *surface, Vector *vect)
 {
-    srand(time(NULL));
+    srand((unsigned int) time(NULL));
     Uint8 c[3][3] = {{255, 0, 0}, {0, 255, 0}, {0, 0, 255}};
     Uint32 color;
     int p;
     
-    lockSurface(surface);
     int x, y, x1, y1;
     for(int i = 0; i < vect->used; i++)
     {
@@ -179,7 +180,6 @@ void drawBlocks(Image *surface, Vector *vect)
             setPixel(surface, x1, j, color);
         }
     }
-    unlockSurface(surface);
 }
 void resetArray(int *array, int length)
 {
@@ -325,10 +325,10 @@ Image *img_rotate(Image *img, double degrees)
         printf("Rotation not needed.\n");
         return img;
     }
-    return img_c_sucks_balls_rotate(img, degrees);
+    return historietta_de_la_rotacion(img, degrees);
 }
 
-Image *img_c_sucks_balls_rotate(Image *old_image, double angle_deg)
+Image *historietta_de_la_rotacion(Image *old_image, double angle_deg)
 {
     /* Trigo */
     double cos_rad = cos(PI * angle_deg / 180);

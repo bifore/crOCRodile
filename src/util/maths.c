@@ -1,4 +1,5 @@
 #include "maths.h"
+#include "image.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,7 +13,7 @@ Matrix *mat_create(int width, int height, float *matrix)
     mat->width = width;
     mat->height = height;
     if (matrix == NULL)
-        mat->mat = (float *) calloc(width * height, sizeof(float));
+        mat->mat = (float *) calloc((size_t) (width * height), sizeof(float));
     else
         mat->mat = matrix;
     return mat;
@@ -141,4 +142,37 @@ void mat_scalar(Matrix *a,  float s)
 {
     for(int i = 0; i < a->height * a->width; ++i)
         a->mat[i] *= s;
+}
+
+Matrix *mat_from_img(Image *image)
+{
+    float *raster_float = malloc(image->width * image->height * sizeof(float_t));
+    
+    for (int y = 0; y < image->height; ++y)
+        for (int x = 0; x < image->width; ++x)
+            raster_float[y*image->width + x] = getPixel(image, x, y) ? 1f : 0f;
+    
+    return mat_create(image->width, image->height, raster_float);
+}
+
+Image *img_from_matrix(Matrix *matrix) {
+    Image *img = malloc(sizeof(Image));
+    img->width = matrix->width;
+    img->height = matrix->height;
+    img->trueWidth = img->width;
+    img->trueHeight = img->trueHeight;
+    img->x_root = -1;
+    img->y_root = -1;
+    
+    char * rasterrrr = malloc(matrix->width * matrix->height * sizeof(char));
+    for (int y = 0; y < matrix->height; ++y)
+    {
+        for (int x = 0; x < matrix->width; ++x)
+        {
+            rasterrrr[y*matrix->width + x] = (char) matrix->mat[y * matrix->width + x];
+        }
+    }
+    
+    img->raster = rasterrrr;
+    return img;
 }

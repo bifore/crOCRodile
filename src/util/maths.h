@@ -2,6 +2,7 @@
 #define UTILS_MATHS_H_
 
 #include <stdbool.h>
+#include "image.h"
 
 typedef struct
 {
@@ -39,5 +40,9 @@ float mth_sigmoid(float x);
 float mth_sigmoid_prime(float x);
 
 float mth_apply(float (*func)(float), float x);
+
+Matrix *mat_from_img(Image *image);
+
+Image *img_from_matrix(Matrix *matrix);
 
 #endif /* !UTILS_MATHS_H_ */
