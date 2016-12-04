@@ -2,9 +2,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 
-# include "../io/image.c"
-
-GdkPixbuf *img_load(const char *name);
+# include "../io/image.h"
 
 static void show_lines(GtkWidget *widget, gpointer data)
 {
