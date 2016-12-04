@@ -62,7 +62,7 @@ Image *img_create_noBin(GdkPixbuf *file)
         {
             guchar *p = ori + y * row_size + x * n;
             int i = y * img->width + x;
-            char v = (p[0] + p[1] + p[2]) / 3;
+            char v = (char) ((p[0] + p[1] + p[2]) / 3);
             img->raster[i] = v;
         }
     return img;
@@ -315,10 +315,17 @@ double img_get_orientation_factor(Image *image)
             break;
         }
     }
-
+    
     printf("Found left intersection : %d\n", lefty);
     printf("Found top intersection : %d\n", topx);
-    double sin = (double) lefty / (double) topx;
+    
+    int hypo = (int) sqrt((pow(lefty, 2) + pow(topx, 2)));
+    double sin = (double) topx / (double) hypo;
+    
+    if (hypo == 0) {
+        sin = 0;
+    }
+    
     printf("Needing rotation of : %lf\n", asin(sin) * 180 / PI);
     return asin(sin);
 }

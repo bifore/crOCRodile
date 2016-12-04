@@ -350,5 +350,10 @@ int main(int argc, char **argv)
 int main(int argc, char**argv)
 {
     Image *img = img_create(img_load(TEST_SET_IMAGE_LOREM_NOSUFFIX));
-    printf("Raster : %p", (void *) img->raster);
+    Image *cropped = img_crop_border(img, false);
+    img_print(cropped);
+    img_save(cropped, "cropped.bmp");
+    printf("Raster : %p\n", (void *) img->raster);
+    double rotationfactor = img_get_orientation_factor(img);
+    printf("Rotation factor : %f", rotationfactor);
 }
