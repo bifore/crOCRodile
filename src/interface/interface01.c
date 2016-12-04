@@ -1,12 +1,11 @@
-# include <gtk/gtk.h>
-# include <stdio.h>
-# include <stdlib.h>
-# include <string.h>
-# include <unistd.h>
+#include <gtk/gtk.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-# include "../io/image.c"
+#include "../io/image.h"
 
-GdkPixbuf *img_load(const char *name);
 static char *choosecharacter(char *filename, char *text);
 
 GtkWidget *image_glob;
