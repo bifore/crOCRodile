@@ -24,7 +24,7 @@ It only costs your soul and the sacrifice of your fattest lamb to God.
   * UI
   * GTK3
   * OS/backend integration
-- **GUENEZAN Paul**
+- **GUÉNÉZAN Paul**
   * Artificial back-propagating neural network
   * Training routines
   * Team leader
