@@ -1,7 +1,7 @@
 #include "rotation.h"
 #include <math.h>
 
-void r_histogram(Image *surface, int *array, int angle)
+void histogram_r(Image *surface, int *array, int angle)
 {
     char pixel;
     float tany = 0;
@@ -24,7 +24,7 @@ void r_histogram(Image *surface, int *array, int angle)
                 ny = (int) (y + nx * tany);
                 if (nx >= 0 && nx < surface->width && ny >= 0 && ny < surface->height)
                 {
-                    pixel = get_pixel(surface, nx, ny);
+                    pixel = img_get_pixel(surface, nx, ny);
                     if (!pixel)
                         sum++;
                 }

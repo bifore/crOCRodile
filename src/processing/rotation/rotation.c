@@ -47,7 +47,7 @@ int find_rotation_angle(Image *image)
     int i = 0;
     for (int angle = -ANGLE; angle <= ANGLE; angle++)
     {
-        r_histogram(image, histo, angle);
+        histogram_r(image, histo, angle);
         variance[i] = get_variance(histo);
         
         i++;
@@ -55,14 +55,14 @@ int find_rotation_angle(Image *image)
     return -(-ANGLE + max_array_pos(variance, ANGLE * 2 + 1));
 }
 
-Image *img_autorotate(Image *img)
+Image *rotate_auto_image(Image *img)
 {
     double best_angle_degrees = find_rotation_angle(img);
-    printf("Automatically suggested rotation angle : %lf", best_angle_degrees);
-    return img_rotate(img, best_angle_degrees);
+    printf("Automatically suggested rotation angle : %lf\n", best_angle_degrees);
+    return rotate_manual_image(img, best_angle_degrees);
 }
 
-Image *img_rotate(Image *img, double degrees)
+Image *rotate_manual_image(Image *img, double degrees)
 {
     if (degrees == 0.)
     {
@@ -73,6 +73,12 @@ Image *img_rotate(Image *img, double degrees)
     return historietta_de_la_rotacion(img, degrees);
 }
 
+/**
+ * supercool rotation
+ * @param old_image the image to rotate
+ * @param angle_deg the angle of which to rotate it
+ * @return a copy of it, but resized and rotated
+ */
 Image *historietta_de_la_rotacion(Image *old_image, double angle_deg)
 {
     /* Trigo */
@@ -111,7 +117,7 @@ Image *historietta_de_la_rotacion(Image *old_image, double angle_deg)
             int yo = (int) (ocy + (cos_rad * (y - ncy) - sin_rad * (x - ncx)));
             if (xo >= 0 && yo >= 0 && xo < old_image->width && yo < old_image->height)
             {
-                set_pixel(new_img, x, y, get_pixel(old_image, xo, yo));
+                img_set_pixel(new_img, x, y, img_get_pixel(old_image, xo, yo));
             }
         }
     }
