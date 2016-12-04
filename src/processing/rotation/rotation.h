@@ -7,7 +7,7 @@
 #define PI 3.14159265358979323846
 
 #include <math.h>
-#include "../util/image.h"
+#include "../../util/image.h"
 
 double img_get_orientation_factor_radians(Image *image);
 

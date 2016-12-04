@@ -39,4 +39,8 @@ void _img_explore_character(Image *img, Vector *pixels, int x, int y);
 
 Image *img_normalize(Image *img, int size);
 
+char getPixel(Image *image, int xo, int yo);
+
+void setPixel(Image *img, int x, int y, char pixel);
+
 #endif /* UTIL_IMAGE_H_ */

@@ -281,3 +281,13 @@ Image *img_normalize(Image *img, int size)
     }
     return result;
 }
+
+void setPixel(Image *img, int x, int y, char pixel)
+{
+    img->raster[img->width * y + x] = pixel;
+}
+
+char getPixel(Image *image, int xo, int yo)
+{
+    return image->raster[yo * image->width + xo];
+}
