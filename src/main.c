@@ -1,5 +1,9 @@
 #include "io/image.h"
+#include "processing/binarizator.h"
+#include "interface/interface.h"
 #include "defaults.h"
+#include "util/string.h"
+#include "util/image.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -10,7 +14,7 @@
 Vector *getFontList()
 {
     Vector *fonts = vec_create(2);
-    FILE *file = fopen("res/font.list", "r");
+    FILE *file = fopen("res/ann/font.list", "r");
     fseek(file, 0L, SEEK_END);
     int sz = (ftell(file) - 1) / 16;
     rewind(file);
@@ -28,7 +32,7 @@ Vector *loadAlphabet(char *font, int nb)
     Vector *alpha = vec_create(54);
     for(int i = 0; i < 26; ++i)
     {
-        char path[] = "res/________________/?.char";
+        char path[] = "res/ann/________________/?.char";
         for(int p = 0; p < 16; ++p)
             path[p + 4] = font[p];
         path[21] = 'a' + i;
@@ -39,7 +43,7 @@ Vector *loadAlphabet(char *font, int nb)
     }
     for(int i = 0; i < 26; ++i)
     {
-        char path[] = "res/________________/?.char";
+        char path[] = "res/ann/________________/?.char";
         for(int p = 0; p < 16; ++p)
             path[p + 4] = font[p];
         path[21] = 'A' + i;
@@ -49,7 +53,7 @@ Vector *loadAlphabet(char *font, int nb)
         vec_add(alpha, img);
     }
     {
-        char path[] = "res/________________/comma.char";
+        char path[] = "res/ann/________________/,.char";
         for(int p = 0; p < 16; ++p)
             path[p + 4] = font[p];
         Image *img = img_read_bin(path);
@@ -58,7 +62,7 @@ Vector *loadAlphabet(char *font, int nb)
         vec_add(alpha, img);
     }
     {
-        char path[] = "res/________________/point.char";
+        char path[] = "res/ann/________________/..char";
         for(int p = 0; p < 16; ++p)
             path[p + 4] = font[p];
         Image *img = img_read_bin(path);
@@ -81,9 +85,51 @@ void free_lines(Vector *lines)
     vec_free(lines, false);
 }
 
+/*
 int main(int argc, char **argv)
 {
-    char learn = argc == 2 && !strcmp(argv[1], "learn");
+    char learn = false;
+    char showLine = false;
+    char showChar = false;
+    char showGui = false;
+    if(argc <= 1)
+    {
+        printf("Try 'croORCodile --help' for more information.\n");
+        return -1;
+    }
+    for(int i = 1; i < argc; ++i)
+    {
+        if(!strcmp(argv[i], "--learn") || !strcmp(argv[i], "-l"))
+           learn = true;
+        if(!strcmp(argv[i], "--show-gui") || !strcmp(argv[i], "-G"))
+           showGui = true;
+        if(!strcmp(argv[i], "--show-line") || !strcmp(argv[i], "-L"))
+           showLine = true;
+        if(!strcmp(argv[i], "--show-char") || !strcmp(argv[i], "-C"))
+           showChar = true;
+        if(!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h"))
+        {
+            printf("\n"
+                   "Usage:\n"
+                   "    croORCodile [options] file\n"
+                   "\n"
+                   "General Options:\n"
+                   "    -h, --help         "
+                   "Show this help.\n"
+                   "    -l, --learn        "
+                   "Enter interactive learning mode.\n"
+                   "    -L, --show-line    "
+                   "Display lines in the output image.\n"
+                   "    -C, --show-char    "
+                   "Show the graphical user interface.\n"
+                   "    -G, --show-gui     "
+                   "Display characters in the output image.\n");
+            return 0;
+        }
+    }
+
+    if(showGui)
+        gui_start();
     
     char *newFontName = NULL;
     if(learn)
@@ -94,15 +140,16 @@ int main(int argc, char **argv)
         printf("                          ________________\n");
         printf("Enter the new font name : ");
         scanf("%16s", newFontName);
-        char path[] = "res/________________";
+        char path[] = "res/ann/________________";
         for(int p = 0; p < 16; ++p)
             path[p + 4] = newFontName[p];
         mkdir(path, 0777);
     }
 
-    GdkPixbuf *img = img_load("./MultiColUneFont_150.jpg");
+    GdkPixbuf *img = img_load(argv[argc - 1]);
 
     Image * original = img_create(img);
+
     Image * image = img_crop_border(original, false);
 
     Vector * chars = vec_create(10);
@@ -157,7 +204,7 @@ int main(int argc, char **argv)
             char c = getchar();
             if(c != '\n')
             {
-                char path[] = "res/________________/?.char";
+                char path[] = "res/ann/________________/?.char";
                 for(int p = 0; p < 16; ++p)
                     path[p + 4] = newFontName[p];
                 path[21] = c;
@@ -211,7 +258,6 @@ int main(int argc, char **argv)
                 {
                     Image *pre = (Image *) vec_get(line, ii - 1);
                     Image *cur = (Image *) vec_get(line, ii);
-                    printf("%d\n", (cur->x_root - pre->x_root + pre->width));
                     meanHspace += cur->x_root - pre->x_root + pre->width;
                     ++meanHspaceDiv;
                 }
@@ -221,7 +267,6 @@ int main(int argc, char **argv)
     }
     meanHspace /= meanHspaceDiv;
     vec_free(chars, false);
-    printf("%f\n", meanHspace);
 
     for(int l = 0; l < lines->size; ++l)
     {
@@ -244,7 +289,8 @@ int main(int argc, char **argv)
                 hmaxW = cur->y_root - yminW + cur->height;
             printf("%c", cur->character);
             int w = cur->width;
-            img_drawRect(img, cur->x_root, cur->y_root, w, cur->height,
+            if(showChar)
+                img_drawRect(img, cur->x_root, cur->y_root, w, cur->height,
                          255, 0, 0);
             if(c + 1 < line->size)
             {
@@ -262,20 +308,24 @@ int main(int argc, char **argv)
                     }
             }
         }
-        fi = (Image *) vec_get(line, 0);
-        int hmax = -1;
-        for(int c = 0; c < line->size; ++c)
+        if(showLine)
         {
-            Image *cur = (Image *) vec_get(line, c);
-            if(cur->y_root - ymin + cur->height > hmax)
-                hmax = cur->y_root - ymin + cur->height;
+            fi = (Image *) vec_get(line, 0);
+            int hmax = -1;
+            for(int c = 0; c < line->size; ++c)
+            {
+                Image *cur = (Image *) vec_get(line, c);
+                if(cur->y_root - ymin + cur->height > hmax)
+                    hmax = cur->y_root - ymin + cur->height;
+            }
+            int w = li->x_root + li->width - fi->x_root;
+            img_drawRect(img, fi->x_root, ymin, w, hmax, 0, 255, 0);
         }
-        int w = li->x_root + li->width - fi->x_root;
-        img_drawRect(img, fi->x_root, ymin, w, hmax, 0, 255, 0);
         printf("\n");
     }
 
-    img_save_buf(img, "rect.bmp");
+    if(showLine || showChar)
+        img_save_buf(img, str_con(2, argv[argc - 1], "_rect.bmp"));
 
     free_lines(lines);
     img_free(original);
@@ -286,7 +336,7 @@ int main(int argc, char **argv)
         Vector *alpha = (Vector *) vec_get(alphas, i);
         for(int u = 0; u < alpha->size; ++u)
         {
-             img_free((Image *) vec_get(alpha, u));
+            img_free((Image *) vec_get(alpha, u));
         }
         vec_free(alpha, false);
     }
@@ -294,4 +344,14 @@ int main(int argc, char **argv)
 
     if(learn)
         free(newFontName);
+}
+*/
+
+int main(int argc, char**argv)
+{
+    Image *img = img_create(img_load(TEST_SET_IMAGE_ROTATION));
+    Image *cropped = img_crop_border(img, false);
+    Image *rotated = img_rotate(cropped, 22.0);
+    //img_print(rotated);
+    img_save(rotated, "new-save-algo.bmp");
 }

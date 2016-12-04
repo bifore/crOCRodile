@@ -9,13 +9,15 @@ MKDIR     = mkdir -p
 
 MAIN      = src/main.c
 
-SRC       = src/io/image.c         \
-            src/processing/canny.c \
-            src/util/maths.c       \
-            src/util/vector.c      \
-            src/util/string.c      \
-            src/util/image.c       \
-            src/ann/network.c      \
+SRC       = src/io/image.c               \
+            src/processing/canny.c       \
+            src/processing/binarizator.c \
+            src/util/maths.c             \
+            src/util/vector.c            \
+            src/util/string.c            \
+            src/util/image.c             \
+            src/ann/network.c            \
+            src/interface/interface.c    \
 
 BUILD_DIR = build
 
