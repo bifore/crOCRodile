@@ -7,10 +7,29 @@
 # include "../io/image.c"
 
 GdkPixbuf *img_load(const char *name);
+static char *choosecharacter(char *filename, char *text);
 
 GtkWidget *image_glob;
 
+static void outputocr(char *text)
+{
+    GtkWidget *dialog, *label, *contentarea;
+    GtkDialogFlags flags;
 
+    flags = GTK_DIALOG_DESTROY_WITH_PARENT;
+    dialog = gtk_dialog_new_with_buttons ("OCR OUTPUT",
+        (GtkWindow *) gtk_window_new (GTK_WINDOW_POPUP),
+        flags,
+        "OK",
+        GTK_RESPONSE_ACCEPT,
+        NULL);
+    contentarea = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
+    label = gtk_label_new(text);
+    gtk_container_add(GTK_CONTAINER (contentarea), label);
+    g_signal_connect_swapped (dialog, "response",
+                              G_CALLBACK (gtk_widget_destroy), dialog);
+    gtk_widget_show_all(dialog);
+}
 static void characterdisplayed(GtkEntry *entry)
 {
     if (gtk_entry_get_text_length(entry) > 1);
@@ -21,59 +40,63 @@ static void characterdisplayed(GtkEntry *entry)
     }
 }
 
-static char *choosecharacter(char *filename)
+static char *choosecharacter(char *filename, char *text)
 {
-    GtkWidget *dialog, *imagedisplay, *image, *entry, *contentarea;
+    GtkWidget *dialog, *imagedisplay, *image, *entry, *contentarea, *label;
     GtkDialogFlags flags;
 
     flags = GTK_DIALOG_DESTROY_WITH_PARENT;
-    dialog = gtk_dialog_new_with_buttons ("jsaisap",
-                                          (GtkWindow *) gtk_window_new (GTK_WINDOW_POPUP),
-                                          flags,
-                                          NULL);
+    dialog = gtk_dialog_new_with_buttons ("crOCRodile",
+        (GtkWindow *) gtk_window_new (GTK_WINDOW_POPUP),
+        flags,
+        NULL);
     contentarea = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
-    entry = gtk_entry_new_with_buffer(gtk_entry_buffer_new("Character displayed", 19));
+    label = gtk_label_new(text);
+    entry = gtk_entry_new_with_buffer(
+        gtk_entry_buffer_new("Character displayed", 19));
     imagedisplay = gtk_frame_new("");
-    image = gtk_image_new();;
-    gtk_container_add(GTK_CONTAINER(imagedisplay), image);
+    image = gtk_image_new();
     gtk_container_add(GTK_CONTAINER (contentarea), imagedisplay);
+    gtk_container_add(GTK_CONTAINER (imagedisplay), image);
+    gtk_container_add(GTK_CONTAINER (contentarea), label);
     gtk_container_add(GTK_CONTAINER (contentarea), entry);
     GdkPixbuf *img = img_load(filename);
     img = gdk_pixbuf_scale_simple(img, 960, 540, GDK_INTERP_TILES);
     gtk_image_set_from_pixbuf((GtkImage *) image, img);
-    g_signal_connect_swapped (dialog, "response", G_CALLBACK (characterdisplayed), entry); 
+    g_signal_connect_swapped (dialog, "response",
+        G_CALLBACK (characterdisplayed), entry);
     gtk_widget_show_all(dialog);
 
 
 }
-static void loading()
+static void loading(char state)
 {
-    GtkWidget *dialog, *pb, *content_area;
+    GtkWidget *dialog, *spinner, *content_area;
     GtkDialogFlags flags;
 
     flags = GTK_DIALOG_DESTROY_WITH_PARENT;
-    dialog = gtk_dialog_new_with_buttons ("Font", 
-                                          (GtkWindow *) gtk_window_new(GTK_WINDOW_POPUP),
-                                          flags,
-                                          NULL);
+    dialog = gtk_dialog_new_with_buttons ("Font",
+        (GtkWindow *) gtk_window_new(GTK_WINDOW_POPUP),
+        flags,
+        NULL);
     content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
-    pb = gtk_progress_bar_new();
-    gtk_container_add (GTK_CONTAINER (content_area), pb);
-    gtk_progress_bar_pulse((GtkProgressBar *) pb);
-    gtk_progress_bar_set_fraction((GtkProgressBar *) pb, 0.2);
-    gtk_progress_bar_set_fraction((GtkProgressBar *) pb, 0.4);
-    gtk_progress_bar_set_fraction((GtkProgressBar *) pb, 0.6);
-    gtk_progress_bar_set_fraction((GtkProgressBar *) pb, 0.8);
-    gtk_progress_bar_set_fraction((GtkProgressBar *) pb, 0.9);
+    spinner = gtk_spinner_new();
+    gtk_container_add (GTK_CONTAINER (content_area), spinner);
+    if (state)
+        gtk_spinner_start((GtkSpinner *) spinner);
+    else
+        gtk_spinner_stop((GtkSpinner *) spinner);
     gtk_widget_show_all(dialog);
-    if (gtk_progress_bar_get_fraction((GtkProgressBar *) pb) == 1.0)
-        gtk_widget_destroy(dialog); 
 }
 
 static void printfont(GtkEntry *entry)
 {
-    printf("%s", gtk_entry_get_text(entry));
-    fflush(stdout);
+    if (gtk_entry_get_text_length(entry) > 16);
+    else
+    {
+        printf("%s", gtk_entry_get_text(entry));
+        fflush(stdout);
+    }
 }
 static void reload(char *path)
 {
@@ -99,7 +122,13 @@ static void show_character(GtkWidget *widget, gpointer data)
 
 static void detect(GtkWidget *widget, gpointer data)
 {
-    choosecharacter("/home/jivaros/Pictures/Screenshot from 2016-10-29 23-28-01.png");
+    choosecharacter("/home/jivaros/Pictures/Screenshot "
+        "from 2016-10-29 23-28-01.png", "lolmd\ndz");
+}
+
+static void binarization(GtkWidget *widget, gpointer data)
+{
+    outputocr("jesusitonpereeejiqjdqzidjqzidqzijdq\ndzqdqz");
 }
 
 static void learn(GtkWidget *widget, gpointer data)
@@ -112,13 +141,14 @@ static void learn(GtkWidget *widget, gpointer data)
 
     // Create the widgets
     flags = GTK_DIALOG_DESTROY_WITH_PARENT;
-    dialog = gtk_dialog_new_with_buttons ("Font", 
+    dialog = gtk_dialog_new_with_buttons ("Font",
                                           data,
                                           flags,
                                           NULL);
     content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
     entry = gtk_entry_new_with_buffer (gtk_entry_buffer_new (text, 4));
-    g_signal_connect_swapped (dialog, "response", G_CALLBACK (printfont), entry);
+    g_signal_connect_swapped (dialog,
+        "response", G_CALLBACK (printfont), entry);
     gtk_container_add (GTK_CONTAINER (content_area), entry);
     gtk_widget_show_all(dialog);
 }
@@ -130,13 +160,13 @@ static void chooser(GtkWidget *widget, gpointer *data)
     gint res;
 
     dialog = gtk_file_chooser_dialog_new ("Open File",
-                                          (GtkWindow *) gtk_window_new(GTK_WINDOW_POPUP),
-                                          GTK_FILE_CHOOSER_ACTION_OPEN,
-                                          "_Cancel",
-                                          GTK_RESPONSE_CANCEL,
-                                          "_Open",
-                                          GTK_RESPONSE_ACCEPT,
-                                          NULL);
+        (GtkWindow *) gtk_window_new(GTK_WINDOW_POPUP),
+        GTK_FILE_CHOOSER_ACTION_OPEN,
+        "_Cancel",
+        GTK_RESPONSE_CANCEL,
+        "_Open",
+        GTK_RESPONSE_ACCEPT,
+        NULL);
     res = gtk_dialog_run (GTK_DIALOG (dialog));
     if (res == GTK_RESPONSE_ACCEPT)
     {
@@ -150,18 +180,13 @@ static void chooser(GtkWidget *widget, gpointer *data)
     gtk_widget_destroy (dialog);
 }
 
-static void 
-activate(GtkApplication *app, 
+static void
+activate(GtkApplication *app,
          gpointer userdata)
 {
-    GtkWidget *window; 
-    GtkWidget *button;
-    GtkWidget *grid;
-    GtkWidget *gridthereturn;
-    GtkWidget *image;
-    GtkWidget *imagedisplay;
-    GtkWidget *checkbutton;
-    GtkWidget *scrolledwindow;
+    GtkWidget *window, *button, *grid, *gridthereturn,
+              *image, *imagedisplay, *checkbutton,
+              *scrolledwindow, *label;
 
     /* create a new window, and set its title */
 
@@ -173,28 +198,30 @@ activate(GtkApplication *app,
     grid = gtk_grid_new ();
     gridthereturn = gtk_grid_new();
 
-    /* Pack the container in the window */  
- 
-    /* creating an imagedisplay and a scrollbar then placing it to the right of the buttons */
+    /* Pack the container in the window */
+
+    /* creating an imagedisplay and a scrollbar
+     * then placing it to the right of the buttons */
 
     image = gtk_image_new();
     imagedisplay = gtk_frame_new("");
     gtk_container_add(GTK_CONTAINER(imagedisplay), image);
-    scrolledwindow = gtk_scrolled_window_new(gtk_adjustment_new(0, 0, 250, 250, 250, 250), gtk_adjustment_new(0, 0, 250, 250, 250, 250));
+    scrolledwindow = gtk_scrolled_window_new
+        (gtk_adjustment_new(0, 0, 250, 250, 250, 250),
+         gtk_adjustment_new(0, 0, 250, 250, 250, 250));
     gtk_widget_set_size_request(scrolledwindow, 1200, 650);
     gtk_container_add(GTK_CONTAINER(window), gridthereturn);
     gtk_container_add(GTK_CONTAINER(scrolledwindow), imagedisplay);
-    
 
     /* creating button load */
-    
+
     button = gtk_button_new_with_label("Load Image");
     g_signal_connect(button, "clicked", G_CALLBACK (chooser), image);
 
     /* Place the load button in the grid cell (0,0), and make it fill
      * just 1 cell horizontally and vertically (ie no spanning)
      */
-    
+
     gtk_grid_attach (GTK_GRID (grid), button, 0, 1, 1, 5);
 
     /* creating button detect */
@@ -218,40 +245,46 @@ activate(GtkApplication *app,
      */
 
     gtk_grid_attach (GTK_GRID (grid), button, 0, 2000, 1, 5);
-    
+
     button = gtk_button_new_with_label("Binarization");
     gtk_grid_attach (GTK_GRID (grid), button, 0, 3000, 1, 5);
+    g_signal_connect (button, "clicked", G_CALLBACK(binarization), NULL);
 
     button = gtk_button_new_with_label("AutoRotate");
     gtk_grid_attach (GTK_GRID (grid), button, 0, 4000, 1, 5);
-    g_signal_connect (button, "clicked", G_CALLBACK (loading), NULL); 
+    g_signal_connect (button, "clicked", G_CALLBACK (loading), NULL);
 
     /* creating show character check button */
-    
+
     checkbutton = gtk_check_button_new_with_label("Show Character");
     gtk_grid_attach (GTK_GRID (grid), checkbutton, 0, 5000, 1, 5);
-    g_signal_connect (checkbutton, "toggled", G_CALLBACK (show_character), NULL);
+    g_signal_connect (checkbutton,
+        "toggled",
+        G_CALLBACK (show_character), NULL);
 
     /* creating show lines check button */
 
     checkbutton = gtk_check_button_new_with_label("Show Lines");
     gtk_grid_attach (GTK_GRID (grid), checkbutton, 0, 6000, 1, 5);
     g_signal_connect (checkbutton, "toggled", G_CALLBACK (show_lines), NULL);
-    
+
     gtk_grid_attach (GTK_GRID (gridthereturn), grid, 0, 0, 1, 18);
     gtk_grid_attach (GTK_GRID (gridthereturn), scrolledwindow, 1, 0, 1, 1);
 
-    /* Now that we are done packing our widgets, we show them all in 
+    label = gtk_label_new("lolmdr\ndqzdzq\ndqzdzq\ndqz\ndz");
+    gtk_grid_attach (GTK_GRID (grid), label, 0, 90000, 1, 5);
+
+    /* Now that we are done packing our widgets, we show them all in
      * one go, by calling gtk_widget_show_all() on the window.
      * This call recusrively calls gtk_widget_show() on all widgets
-     * that are contained in the window, directly or indirectly 
+     * that are contained in the window, directly or indirectly
      */
 
     gtk_widget_show_all (window);
     image_glob = image;
 }
 
-int main(int argc, 
+int main(int argc,
          char **argv)
 {
     GtkApplication  *app;
