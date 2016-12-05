@@ -18,6 +18,7 @@ SRC       = src/io/image.c               \
             src/util/image.c             \
             src/ann/network.c            \
             src/interface/interface.c    \
+            src/knn/distance.c           \
 
 BUILD_DIR = build
 

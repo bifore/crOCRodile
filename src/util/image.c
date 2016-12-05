@@ -248,6 +248,8 @@ void _img_explore_character(Image *img, Vector *pixels, int x, int y)
     int p_index = y * img->width + x;
     int p_index_lr = (y + 1) * img->width + x + 1;
     vec_add_int(pixels, p_index);
+    if(pixels->size > 80000)
+        return;
     img->raster[p_index] = false;
     if (x > 0 && img->raster[p_index - 1])
         _img_explore_character(img, pixels, x - 1, y);
