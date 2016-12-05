@@ -4,6 +4,7 @@
 #include "defaults.h"
 #include "util/string.h"
 #include "knn/distance.h"
+#include "util/image.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -429,3 +430,13 @@ int main(int argc, char **argv)
     if(learn)
         free(newFontName);
 }
+
+/*
+int main(int argc, char**argv)
+{
+    Image *img = img_create(img_load(TEST_SET_IMAGE_ROTATION));
+    Image *cropped = img_crop_border(img, false);
+    Image *rotated = img_rotate(cropped, 22.0);
+    //img_print(rotated);
+    img_save(rotated, "new-save-algo.bmp");
+}*/

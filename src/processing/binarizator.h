@@ -7,6 +7,6 @@
 
 #include "../util/image.h"
 
-Image *binarize(GdkPixbuf *file, float percent_tolerance);
+Image *binarize(GdkPixbuf *file);
 
 #endif /* PROCESSING_BINARIZATOR_H_ */
