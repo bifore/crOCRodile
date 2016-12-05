@@ -13,6 +13,13 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+char learn = false;
+char showLine = false;
+char showChar = false;
+char showGui = false;
+
+char knn_mode = true;
+
 Vector *getFontList(char knn_mode)
 {
     Vector *fonts = vec_create(2);
@@ -89,55 +96,9 @@ void free_lines(Vector *lines)
     }
     vec_free(lines, false);
 }
-int main(int argc, char **argv)
+
+void run(int argc, char **argv)
 {
-    // ==================== Input Parsing ====================
-    char learn = false;
-    char showLine = false;
-    char showChar = false;
-    char showGui = false;
-
-    char knn_mode = true;
-
-    if(argc <= 1)
-    {
-        printf("Try 'croORCodile --help' for more information.\n");
-        return -1;
-    }
-    for(int i = 1; i < argc; ++i)
-    {
-        if(!strcmp(argv[i], "--learn") || !strcmp(argv[i], "-l"))
-            learn = true;
-        if(!strcmp(argv[i], "--show-gui") || !strcmp(argv[i], "-G"))
-            showGui = true;
-        if(!strcmp(argv[i], "--show-line") || !strcmp(argv[i], "-L"))
-            showLine = true;
-        if(!strcmp(argv[i], "--show-char") || !strcmp(argv[i], "-C"))
-            showChar = true;
-        if(!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h"))
-        {
-            printf("\n"
-                   "Usage:\n"
-                   "    croORCodile [options] file\n"
-                   "\n"
-                   "General Options:\n"
-                   "    -h, --help         "
-                   "Show this help.\n"
-                   "    -l, --learn        "
-                   "Enter interactive learning mode.\n"
-                   "    -L, --show-line    "
-                   "Display lines in the output image.\n"
-                   "    -C, --show-char    "
-                   "Show the graphical user interface.\n"
-                   "    -G, --show-gui     "
-                   "Display characters in the output image.\n");
-            return 0;
-        }
-    }
-
-    if(showGui)
-        gui_start();
-
     char *newFontName = NULL;
     if(learn)
     {
@@ -350,6 +311,12 @@ int main(int argc, char **argv)
 
     // ==================== Characters detection ====================
 
+    int final_size = 0;
+    for(int l = 0; l < lines->size; ++l)
+        final_size += ((Vector *) vec_get(lines, l))->size;
+    char *final_out = calloc(final_size * 2, sizeof(char));
+    int final_pos = 0;
+
     for(int l = 0; l < lines->size; ++l)
     {
         Vector *line = (Vector *) vec_get(lines, l);
@@ -370,6 +337,7 @@ int main(int argc, char **argv)
             if(cur->y_root - yminW + cur->height > hmaxW)
                 hmaxW = cur->y_root - yminW + cur->height;
             printf("%c", cur->character);
+            final_out[final_pos++] = cur->character;
             int w = cur->width;
             if(showChar)
                 img_drawRect(img, cur->x_root, cur->y_root, w, cur->height,
@@ -381,6 +349,7 @@ int main(int argc, char **argv)
                     if(nxt->character != '.' && nxt->character != ',')
                     {
                         printf(" ");
+                        final_out[final_pos++] = ' ';
                         w = cur->x_root + cur->width - fi->x_root;
                         yminW = 999999;
                         hmaxW = -1;
@@ -402,7 +371,11 @@ int main(int argc, char **argv)
             img_drawRect(img, fi->x_root, ymin, w, hmax, 0, 255, 0);
         }
         printf("\n");
+        final_out[final_pos++] = '\n';
     }
+
+    if(showGui)
+        outputocr(final_out);
 
     if(showLine || showChar)
         img_save_buf(img, str_con(2, argv[argc - 1], "_rect.bmp"));
@@ -413,7 +386,7 @@ int main(int argc, char **argv)
     img_free(original);
     img_free(image);
     g_object_unref(img);
-    if(alphas)
+    if(alphas && !knn_mode)
     {
         for(int i = 0; i < alphas->size; ++i)
         {
@@ -426,9 +399,56 @@ int main(int argc, char **argv)
         }
         vec_free(alphas, false);
     }
+    free(final_out);
 
     if(learn)
         free(newFontName);
+}
+
+int main(int argc, char **argv)
+{
+    // ==================== Input Parsing ====================
+
+    if(argc <= 1)
+    {
+        printf("Try 'croORCodile --help' for more information.\n");
+        return -1;
+    }
+    for(int i = 1; i < argc; ++i)
+    {
+        if(!strcmp(argv[i], "--learn") || !strcmp(argv[i], "-l"))
+            learn = true;
+        if(!strcmp(argv[i], "--show-gui") || !strcmp(argv[i], "-G"))
+            showGui = true;
+        if(!strcmp(argv[i], "--show-line") || !strcmp(argv[i], "-L"))
+            showLine = true;
+        if(!strcmp(argv[i], "--show-char") || !strcmp(argv[i], "-C"))
+            showChar = true;
+        if(!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h"))
+        {
+            printf("\n"
+                   "Usage:\n"
+                   "    croORCodile [options] file\n"
+                   "\n"
+                   "General Options:\n"
+                   "    -h, --help         "
+                   "Show this help.\n"
+                   "    -l, --learn        "
+                   "Enter interactive learning mode.\n"
+                   "    -L, --show-line    "
+                   "Display lines in the output image.\n"
+                   "    -C, --show-char    "
+                   "Show the graphical user interface.\n"
+                   "    -G, --show-gui     "
+                   "Display characters in the output image.\n");
+            return 0;
+        }
+    }
+
+    if(showGui)
+        gui_start();
+    else
+        run(argc, argv);
 }
 
 /*
@@ -441,3 +461,33 @@ int main(int argc, char**argv)
     img_free(cropped);
     img_save(rotated, "ROTATEDFINAL.bmp");
 }*/
+
+void set_line(char b)
+{
+    showLine = b;
+}
+
+void set_char(char b)
+{
+    showChar = b;
+}
+
+void auto_rotate(char *path)
+{
+    Image *img = img_create(img_load(path));
+    Image *cropped = img_crop_border(img, false);
+    img_free(img);
+    Image *rotated = img_autorotate(cropped);
+    img_free(cropped);
+    img_save(rotated, str_con(2, path, "_rotated.bmp"));
+    img_free(rotated);
+    reload(str_con(2, path, "_rotated.bmp"));
+}
+
+void binarize_stuff(char *path)
+{
+    Image *img = img_create(img_load(path));
+    img_save(img, str_con(2, path, "_binarize.bmp"));
+    img_free(img);
+    reload(str_con(2, path, "_binarize.bmp"));
+}

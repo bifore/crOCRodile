@@ -5,12 +5,15 @@
 #include <unistd.h>
 
 #include "../io/image.h"
+#include "../main.h"
 
 static char *choosecharacter(char *filename, char *text);
 
 GtkWidget *image_glob;
 
-static void outputocr(char *text)
+char *filename_glob;
+
+void outputocr(char *text)
 {
     GtkWidget *dialog, *label, *contentarea;
     GtkDialogFlags flags;
@@ -97,37 +100,39 @@ static void printfont(GtkEntry *entry)
         fflush(stdout);
     }
 }
-static void reload(char *path)
+void reload(char *path)
 {
     GdkPixbuf *img = img_load(path);
     gtk_image_set_from_pixbuf((GtkImage *) image_glob, img);
 }
 
-static void show_lines(GtkWidget *widget, gpointer data)
+static void show_lines(GtkWidget *widget)
 {
     if (gtk_toggle_button_get_active((GtkToggleButton *) widget))
-    {
-        printf ("LINES\n");
-    }
+        set_line(true);
+    else
+        set_line(false);
 }
 
-static void show_character(GtkWidget *widget, gpointer data)
+static void show_character(GtkWidget *widget)
 {
     if (gtk_toggle_button_get_active((GtkToggleButton *) widget))
-    {
-        printf ("CHARACTER\n");
-    }
+        set_char(true);
+    else
+        set_char(false);
 }
 
-static void detect(GtkWidget *widget, gpointer data)
+static void detect()
 {
-    choosecharacter("/home/jivaros/Pictures/Screenshot "
-        "from 2016-10-29 23-28-01.png", "lolmd\ndz");
+    /*choosecharacter("/home/jivaros/Pictures/Screenshot "
+        "from 2016-10-29 23-28-01.png", "lolmd\ndz");*/
+    run(1, &filename_glob);
 }
 
-static void binarization(GtkWidget *widget, gpointer data)
+static void binarization()
 {
-    outputocr("jesusitonpereeejiqjdqzidjqzidqzijdq\ndzqdqz");
+    //outputocr("jesusitonpereeejiqjdqzidjqzidqzijdq\ndzqdqz");
+    binarize_stuff(filename_glob);
 }
 
 static void learn(GtkWidget *widget, gpointer data)
@@ -150,6 +155,10 @@ static void learn(GtkWidget *widget, gpointer data)
     gtk_widget_show_all(dialog);
 }
 
+void auto_rotate_gui()
+{
+    auto_rotate(filename_glob);
+}
 
 static void chooser(GtkWidget *widget, gpointer *data)
 {
@@ -171,6 +180,7 @@ static void chooser(GtkWidget *widget, gpointer *data)
         GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
         filename = gtk_file_chooser_get_filename (chooser);
         printf("%s\n", filename);
+        filename_glob = filename;
         GdkPixbuf *img = img_load(filename);
         gtk_image_set_from_pixbuf((GtkImage *) data, img);
     }
@@ -249,7 +259,7 @@ activate(GtkApplication *app,
 
     button = gtk_button_new_with_label("AutoRotate");
     gtk_grid_attach (GTK_GRID (grid), button, 0, 4000, 1, 5);
-    g_signal_connect (button, "clicked", G_CALLBACK (loading), NULL);
+    g_signal_connect (button, "clicked", G_CALLBACK (auto_rotate_gui), NULL);
 
     /* creating show character check button */
 
