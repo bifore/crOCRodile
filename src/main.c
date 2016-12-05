@@ -5,6 +5,7 @@
 #include "util/string.h"
 #include "knn/distance.h"
 #include "util/image.h"
+#include "processing/rotation/rotation.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -434,9 +435,10 @@ int main(int argc, char **argv)
 /*
 int main(int argc, char**argv)
 {
-    Image *img = img_create(img_load(TEST_SET_IMAGE_ROTATION));
+    Image *img = img_create(img_load(TEST_SET_FOLDER "MultiColUneFont_150Rot-5.jpg"));
     Image *cropped = img_crop_border(img, false);
-    Image *rotated = img_rotate(cropped, 22.0);
-    //img_print(rotated);
-    img_save(rotated, "new-save-algo.bmp");
+    img_free(img);
+    Image *rotated = img_autorotate(cropped);
+    img_free(cropped);
+    img_save(rotated, "ROTATEDFINAL.bmp");
 }*/

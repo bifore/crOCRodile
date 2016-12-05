@@ -40,8 +40,8 @@ void _img_explore_character(Image *img, Vector *pixels, int x, int y);
 
 Image *img_normalize(Image *img, int size);
 
-char get_pixel(Image *image, int xo, int yo);
+char img_get_pixel(Image *image, int xo, int yo);
 
-void set_pixel(Image *img, int x, int y, char pixel);
+void img_set_pixel(Image *img, int x, int y, char pixel);
 
 #endif /* UTIL_IMAGE_H_ */
