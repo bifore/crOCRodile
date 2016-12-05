@@ -13,16 +13,10 @@ typedef struct
     int heigth;
 } Rectangle;
 
-int max_array_pos(float *a, int nb);
-
-float get_variance(int *array);
-
 int find_rotation_angle(Image *image);
 
-double find_rotation_angle_2(Image *image);
+Image *img_autorotate(Image *img);
 
-Image *rotate_auto_image(Image *img);
-
-Image *rotate_manual_image(Image *img, double radians);
+Image *rotate_manual_image(Image *img, double degrees);
 
 #endif //CROCRODILE_ROTATION_H

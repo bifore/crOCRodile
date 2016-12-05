@@ -1,71 +1,23 @@
 #include "rotation.h"
-#include "histogram.h"
 #include <math.h>
 
-#define ANGLE 20
+#define THRESHOLD_VARIANCE 0.10f
 
 //region PRIVATE METHODS
 
 Image *make_me_sway(Image *old_image, double angle);
 
-//endregion
+void print_variance(float *variance, int height);
 
-//region NON-WORKING
+int nb_lines_under_threshold(float *variance, int height);
 
-int max_array_pos(float *a, int nb)
-{
-    float max = 0;
-    int pos = 0;
-    for (int i = 0; i < nb; i++)
-    {
-        if (a[i] > max)
-        {
-            max = a[i];
-            pos = i;
-        }
-    }
-    return pos;
-}
-
-float get_variance(int *array)
-{
-    float variance = 0;
-    float average = 0;
-    int nb = array[0];
-    for (int i = 1; i <= nb; i++)
-    {
-        average += array[i];
-    }
-    average /= nb;
-    for (int i = 1; i <= nb; i++)
-    {
-        variance += pow((array[i] - average), 2);
-    }
-    variance /= nb;
-    
-    return variance;
-}
-
-int find_rotation_angle(Image *image)
-{
-    int histo[image->height + 1];
-    float variance[ANGLE * 2 + 1];
-    int i = 0;
-    for (int angle = -ANGLE; angle <= ANGLE; angle++)
-    {
-        histogram_r(image, histo, angle);
-        variance[i] = get_variance(histo);
-        
-        i++;
-    }
-    return -(-ANGLE + max_array_pos(variance, ANGLE * 2 + 1));
-}
+float *variance(Image *image);
 
 //endregion
 
 //region WRAPPERS
 
-Image *rotate_auto_image(Image *img)
+Image *img_autorotate(Image *img)
 {
     double best_angle_degrees = find_rotation_angle(img);
     printf("Automatically suggested rotation angle : %lf\n", best_angle_degrees);
@@ -132,9 +84,64 @@ Image *make_me_sway(Image *old_image, double angle_deg)
     return new_img;
 }
 
-double find_rotation_angle_2(Image *image)
+int find_rotation_angle(Image *image)
 {
+    float *variance_val = variance(image);
+    print_variance(variance_val, image->height);
+    int lines = nb_lines_under_threshold(variance_val, image->height);
+    printf("Number of lines under THRESHOLD VARIANCE (%.2f) : %d out of %d\n",
+           THRESHOLD_VARIANCE,
+           lines,
+           image->height
+    );
+    double ratio = (double) lines / (double) image->height;
     
+    printf("Angular ratio is : %lf\n", ratio);
+    
+    double angle = (90 * (ratio / 0.5)) / 4.8;
+    
+    printf("\tso the suggested rotation angle is : %lf\n", angle);
+    
+    return (int) angle;
 }
+
+int nb_lines_under_threshold(float *variance, int height)
+{
+    int nblines = 0;
+    for (int i = 0; i < height && variance[i] < THRESHOLD_VARIANCE; ++i)
+    {
+        nblines ++;
+    }
+    return nblines;
+};
+
+void print_variance(float *variance, int height)
+{
+    printf("Variance-per-3 pixels : { %f", variance[0]);
+    for (int i = 1; i < height; ++i)
+    {
+        printf(", %f", variance[i]);
+    }
+    printf("}\n");
+}
+
+float *variance(Image *image)
+{
+    float *loads = malloc(image->height * sizeof(float));
+    
+    for (int y = 0; y < image->height; ++y)
+    {
+        float load_line = 0;
+        for (int x = 0; x < image->width; ++x)
+        {
+            load_line += image->raster[y * image->width + x] ? 1 : 0;
+        }
+        loads[y] = load_line / image->width;
+    }
+    
+    return loads;
+}
+
+
 
 //endregion
