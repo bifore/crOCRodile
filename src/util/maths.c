@@ -148,7 +148,7 @@ Matrix *mat_from_img(Image *image)
     
     for (int y = 0; y < image->height; ++y)
         for (int x = 0; x < image->width; ++x)
-            raster_float[y*image->width + x] = get_pixel(image, x, y) ? 1 : 0;
+            raster_float[y*image->width + x] = image->raster[y * image->width + x] ? 1 : 0;
     
     return mat_create(image->width, image->height, raster_float);
 }

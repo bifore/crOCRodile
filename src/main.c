@@ -89,7 +89,7 @@ void free_lines(Vector *lines)
     }
     vec_free(lines, false);
 }
-
+/*
 int main(int argc, char **argv)
 {
     // ==================== Input Parsing ====================
@@ -430,15 +430,14 @@ int main(int argc, char **argv)
 
     if(learn)
         free(newFontName);
-}
+}*/
 
-/*
 int main(int argc, char**argv)
 {
-    Image *img = img_create(img_load(TEST_SET_FOLDER "MultiColUneFont_150Rot-5.jpg"));
+    Image *img = img_create(img_load("./img/MultiColUneFontUnePhoto-Rot2_300.jpg"));
     Image *cropped = img_crop_border(img, false);
     img_free(img);
     Image *rotated = img_autorotate(cropped);
     img_free(cropped);
     img_save(rotated, "ROTATEDFINAL.bmp");
-}*/
+}
