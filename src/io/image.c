@@ -2,6 +2,7 @@
 
 GdkPixbuf *img_load(const char *name)
 {
+    printf("Loading picture file : %s\n", name);
     GError *e = NULL;
     GdkPixbuf *b = gdk_pixbuf_new_from_file(name, &e);
     if (e != NULL)

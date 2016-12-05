@@ -350,8 +350,10 @@ int main(int argc, char **argv)
 
 int main(int argc, char**argv)
 {
-    Image *img = img_create(img_load(TEST_SET_IMAGE_ROTATION));
+    Image *img = img_create(img_load(TEST_SET_FOLDER "MultiColUneFontUnePhoto-Rot2_300.jpg"));
     Image *cropped = img_crop_border(img, false);
-    Image *rotated = rotate_auto_image(cropped);
-    img_save(rotated, "IMG-ROT-ROTATED.bmp");
+    int angle_suggestion = find_rotation_angle_2(cropped);
+    Image *rotated = rotate_manual_image(img, -angle_suggestion);
+    Image *crop2 = img_crop_border(rotated, false);
+    img_save(crop2, "ROTATEDFINAL.bmp");
 }
