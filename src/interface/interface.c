@@ -10,6 +10,7 @@
 static char *choosecharacter(char *filename, char *text);
 
 GtkWidget *image_glob;
+GtkWidget *label;
 
 char *filename_glob;
 
@@ -19,7 +20,7 @@ void outputocr(char *text)
     GtkDialogFlags flags;
 
     flags = GTK_DIALOG_DESTROY_WITH_PARENT;
-    dialog = gtk_dialog_new_with_buttons ("OCR OUTPUT",
+    dialog = gtk_dialog_new_with_buttons ("crOCRodile",
         (GtkWindow *) gtk_window_new (GTK_WINDOW_POPUP),
         flags,
         "OK",
@@ -32,7 +33,7 @@ void outputocr(char *text)
                               G_CALLBACK (gtk_widget_destroy), dialog);
     gtk_widget_show_all(dialog);
 }
-static void characterdisplayed(GtkEntry *entry)
+void characterdisplayed(GtkEntry *entry)
 {
     if (gtk_entry_get_text_length(entry) > 1);
     else
@@ -42,7 +43,7 @@ static void characterdisplayed(GtkEntry *entry)
     }
 }
 
-static char *choosecharacter(char *filename, char *text)
+char *choosecharacter(char *filename, char *text)
 {
     GtkWidget *dialog, *imagedisplay, *image, *entry, *contentarea, *label;
     GtkDialogFlags flags;
@@ -71,7 +72,7 @@ static char *choosecharacter(char *filename, char *text)
 
 
 }
-static void loading(char state)
+void loading(char state)
 {
     GtkWidget *dialog, *spinner, *content_area;
     GtkDialogFlags flags;
@@ -91,7 +92,7 @@ static void loading(char state)
     gtk_widget_show_all(dialog);
 }
 
-static void printfont(GtkEntry *entry)
+void printfont(GtkEntry *entry)
 {
     if (gtk_entry_get_text_length(entry) > 16);
     else
@@ -106,7 +107,7 @@ void reload(char *path)
     gtk_image_set_from_pixbuf((GtkImage *) image_glob, img);
 }
 
-static void show_lines(GtkWidget *widget)
+void show_lines(GtkWidget *widget)
 {
     if (gtk_toggle_button_get_active((GtkToggleButton *) widget))
         set_line(true);
@@ -114,7 +115,7 @@ static void show_lines(GtkWidget *widget)
         set_line(false);
 }
 
-static void show_character(GtkWidget *widget)
+void show_character(GtkWidget *widget)
 {
     if (gtk_toggle_button_get_active((GtkToggleButton *) widget))
         set_char(true);
@@ -122,20 +123,20 @@ static void show_character(GtkWidget *widget)
         set_char(false);
 }
 
-static void detect()
+void detect()
 {
     /*choosecharacter("/home/jivaros/Pictures/Screenshot "
         "from 2016-10-29 23-28-01.png", "lolmd\ndz");*/
     run(1, &filename_glob);
 }
 
-static void binarization()
+void binarization()
 {
     //outputocr("jesusitonpereeejiqjdqzidjqzidqzijdq\ndzqdqz");
     binarize_stuff(filename_glob);
 }
 
-static void learn(GtkWidget *widget, gpointer data)
+void learn_gui(GtkWidget *widget, gpointer data)
 {
     GtkWidget *dialog, *entry, *content_area;
     GtkDialogFlags flags;
@@ -160,7 +161,7 @@ void auto_rotate_gui()
     auto_rotate(filename_glob);
 }
 
-static void chooser(GtkWidget *widget, gpointer *data)
+void chooser(GtkWidget *widget, gpointer *data)
 {
     GtkWidget *dialog;
     gint res;
@@ -187,13 +188,16 @@ static void chooser(GtkWidget *widget, gpointer *data)
     gtk_widget_destroy (dialog);
 }
 
-static void
-activate(GtkApplication *app,
-         gpointer userdata)
+void setText(char *text)
+{
+    gtk_label_set_text(label, text);
+}
+
+void activate(GtkApplication *app, gpointer userdata)
 {
     GtkWidget *window, *button, *grid, *gridthereturn,
               *image, *imagedisplay, *checkbutton,
-              *scrolledwindow, *label;
+              *scrolledwindow;
 
     /* create a new window, and set its title */
 
@@ -245,7 +249,7 @@ activate(GtkApplication *app,
     /* creating button learn */
 
     button = gtk_button_new_with_label ("Learn");
-    g_signal_connect (button, "clicked", G_CALLBACK (learn), window);
+    g_signal_connect (button, "clicked", G_CALLBACK (learn_gui), window);
 
     /* Place the learn button in the gric cell (0, 2) and make it fill
      * just 1 cell horizontally and vertically (ie no spanning)

@@ -378,7 +378,11 @@ void run(int argc, char **argv)
         outputocr(final_out);
 
     if(showLine || showChar)
+    {
         img_save_buf(img, str_con(2, argv[argc - 1], "_rect.bmp"));
+        if(showGui)
+            reload(str_con(2, argv[argc - 1], "_rect.bmp"));
+    }
 
     // ==================== Quiting ====================
 
