@@ -7,7 +7,7 @@ LDLIBS    = `pkg-config --libs gtk+-3.0` -lm
 RM        = rm -fv
 MKDIR     = mkdir -p
 
-MAIN      = src/main.c
+MAIN      = src/interface/interface01.c
 
 SRC       = src/io/image.c               \
             src/processing/canny.c       \
