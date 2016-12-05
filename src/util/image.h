@@ -16,6 +16,7 @@ typedef struct
     int trueWidth;
     int trueHeight;
     int font;
+    float error;
 } Image;
 
 Image *img_create(GdkPixbuf *bmp);
