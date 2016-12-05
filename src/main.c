@@ -350,7 +350,7 @@ int main(int argc, char **argv)
 
 int main(int argc, char**argv)
 {
-    Image *img = img_create(img_load(TEST_SET_FOLDER "MultiColUneFontUnePhoto-Rot2_300.jpg"));
+    Image *img = img_create(img_load(TEST_SET_FOLDER "MultiColUneFont_150Rot-5.jpg"));
     Image *cropped = img_crop_border(img, false);
     img_free(img);
     Image *rotated = img_autorotate(cropped);
