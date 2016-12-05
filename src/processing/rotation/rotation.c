@@ -1,5 +1,6 @@
 #include "rotation.h"
 #include "histogram.h"
+#include "../../util/image.h"
 #include <math.h>
 
 #define THRESHOLD_VARIANCE 0.10f
@@ -14,15 +15,28 @@ int nb_lines_under_threshold(float *variance, int height);
 
 float *variance(Image *image);
 
+Image *fine_grained_rotation(Image *img, double degrees);
+
 //endregion
 
 //region WRAPPERS
 
-Image *rotate_auto_image(Image *img)
+Image *img_autorotate(Image *img)
 {
-    double best_angle_degrees = find_rotation_angle(img);
-    printf("Automatically suggested rotation angle : %lf\n", best_angle_degrees);
-    return rotate_manual_image(img, best_angle_degrees);
+    int best_angle_degrees = find_rotation_angle(img);
+    printf("Automatically suggested rotation angle : %d\n", best_angle_degrees);
+    return fine_grained_rotation(img, best_angle_degrees);
+}
+
+Image *fine_grained_rotation(Image *img, double degrees)
+{
+    Image *test1 = img_crop_border(rotate_manual_image(img, degrees), false);
+    Image *test2 = img_crop_border(rotate_manual_image(img, -degrees), false);
+    
+    long size1 = test1->width * test1->height;
+    long size2 = test2->width * test2->height;
+    
+    return size1 < size2 ? test1 : test2;
 }
 
 Image *rotate_manual_image(Image *img, double degrees)
@@ -32,7 +46,7 @@ Image *rotate_manual_image(Image *img, double degrees)
         printf("Rotation not needed.\n");
         return img;
     }
-    printf("Applying a rotation of %lf degrees on image %p", degrees, img);
+    printf("Applying a rotation of %.2lf degrees on image...\n", degrees);
     return make_me_sway(img, degrees);
 }
 
@@ -85,7 +99,7 @@ Image *make_me_sway(Image *old_image, double angle_deg)
     return new_img;
 }
 
-int find_rotation_angle_2(Image *image)
+int find_rotation_angle(Image *image)
 {
     float *variance_val = variance(image);
     print_variance(variance_val, image->height);

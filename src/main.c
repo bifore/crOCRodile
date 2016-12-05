@@ -352,8 +352,8 @@ int main(int argc, char**argv)
 {
     Image *img = img_create(img_load(TEST_SET_FOLDER "MultiColUneFontUnePhoto-Rot2_300.jpg"));
     Image *cropped = img_crop_border(img, false);
-    int angle_suggestion = find_rotation_angle_2(cropped);
-    Image *rotated = rotate_manual_image(img, -angle_suggestion);
-    Image *crop2 = img_crop_border(rotated, false);
-    img_save(crop2, "ROTATEDFINAL.bmp");
+    img_free(img);
+    Image *rotated = img_autorotate(cropped);
+    img_free(cropped);
+    img_save(rotated, "ROTATEDFINAL.bmp");
 }
