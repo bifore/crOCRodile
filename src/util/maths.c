@@ -1,5 +1,7 @@
 #include "maths.h"
 
+#include <stdlib.h>
+
 #include <string.h>
 #include <math.h>
 
@@ -146,7 +148,7 @@ Matrix *mat_from_img(Image *image)
     
     for (int y = 0; y < image->height; ++y)
         for (int x = 0; x < image->width; ++x)
-            raster_float[y*image->width + x] = get_pixel(image, x, y) ? 1f : 0f;
+            raster_float[y*image->width + x] = get_pixel(image, x, y) ? 1 : 0;
     
     return mat_create(image->width, image->height, raster_float);
 }
@@ -172,7 +174,7 @@ Image *img_from_matrix(Matrix *matrix) {
     img->raster = new_raster;
     return img;
 }
-
+/*
 Matrix *and_matrix(Matrix *mat1, Matrix *mat2)
 {
     int width = mat1->width >= mat2->width ? mat1->width : mat2->width;
@@ -197,4 +199,4 @@ Matrix *and_matrix(Matrix *mat1, Matrix *mat2)
     }
     
     return and_mat;
-}
+}*/
