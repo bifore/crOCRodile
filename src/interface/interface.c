@@ -191,6 +191,7 @@ void chooser(GtkWidget *widget, gpointer *data)
 void setText(char *text)
 {
     gtk_label_set_text(label, text);
+    gtk_widget_queue_draw(label);
 }
 
 void activate(GtkApplication *app, gpointer userdata)
@@ -282,7 +283,7 @@ void activate(GtkApplication *app, gpointer userdata)
     gtk_grid_attach (GTK_GRID (gridthereturn), grid, 0, 0, 1, 18);
     gtk_grid_attach (GTK_GRID (gridthereturn), scrolledwindow, 1, 0, 1, 1);
 
-    label = gtk_label_new("lolmdr\ndqzdzq\ndqzdzq\ndqz\ndz");
+    label = gtk_label_new("");
     gtk_grid_attach (GTK_GRID (grid), label, 0, 90000, 1, 5);
 
     /* Now that we are done packing our widgets, we show them all in

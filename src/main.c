@@ -145,6 +145,10 @@ void run(int argc, char **argv)
             vec_add(chars, (void *) character);
         character = img_extract_character(image);
         printf("Characters detected => %d\r", chars->size);
+        char *text_tmp = calloc(100, sizeof(char));
+        sprintf(text_tmp, "Characters detected => %d\r", chars->size);
+        setText(text_tmp);
+        free(text_tmp);
     }
     printf("Characters detected => %d\n", chars->size);
 
