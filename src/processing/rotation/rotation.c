@@ -1,9 +1,7 @@
 #include "rotation.h"
-#include "histogram.h"
-#include "../../util/image.h"
 #include <math.h>
 
-#define THRESHOLD_VARIANCE 0.1f
+#define THRESHOLD_VARIANCE 0.10f
 
 //region PRIVATE METHODS
 
@@ -15,71 +13,15 @@ int nb_lines_under_threshold(float *variance, int height);
 
 float *variance(Image *image);
 
-Image *fine_grained_rotation(Image *img);
-
 //endregion
 
 //region WRAPPERS
 
 Image *img_autorotate(Image *img)
 {
-    //int best_angle_degrees = find_rotation_angle(img);
-    //printf("Automatically suggested rotation angle : %d\n", best_angle_degrees);
-    return fine_grained_rotation(img);
-}
-
-Image *fine_grained_rotation(Image *img)
-{
-    printf("Fine-graining the best rotation angle...\n");
-    int deg_best = 0;
-    long size_best = nb_lines_under_threshold(variance(img), img->height);
-    int next_delta = 5;
-    for (int cur_deg = deg_best; cur_deg < 90; cur_deg += next_delta)
-    {
-        Image *test_pos = img_crop_border(
-                rotate_manual_image(img, cur_deg),
-                false
-        );
-        long size_new_pos = nb_lines_under_threshold(
-                variance(test_pos),
-                test_pos->height
-        );
-        Image *test_neg = img_crop_border(
-                rotate_manual_image(img, -cur_deg),
-                false
-        );
-        long size_new_neg = nb_lines_under_threshold(
-                variance(test_neg),
-                test_neg->height
-        );
-        
-        long size_new;
-        int deg_new;
-        if (size_new_pos > size_new_neg) {
-            printf("Should go clockwise\n");
-            size_new = size_new_pos;
-            deg_new = cur_deg;
-        } else if (size_new_neg < size_new_pos) {
-            printf("Should go counter-clockwise\n");
-            size_new = size_new_neg;
-            deg_new = -cur_deg;
-        } else {
-            printf("It is in a good rotation threshold.\n");
-            deg_best = 0;
-            break;
-        }
-        
-        if (size_new < size_best) {
-            deg_best = deg_new;
-            size_best = size_new;
-        } else {
-            break;
-        }
-    }
-    
-    printf("Determined the best rotation angle to be : %d\n", deg_best);
-    
-    return img_crop_border(rotate_manual_image(img, deg_best), false);
+    double best_angle_degrees = find_rotation_angle(img);
+    printf("Automatically suggested rotation angle : %lf\n", best_angle_degrees);
+    return rotate_manual_image(img, best_angle_degrees);
 }
 
 Image *rotate_manual_image(Image *img, double degrees)
@@ -89,7 +31,7 @@ Image *rotate_manual_image(Image *img, double degrees)
         printf("Rotation not needed.\n");
         return img;
     }
-    printf("Applying a rotation of %.2lf degrees on image...\n", degrees);
+    printf("Applying a rotation of %lf degrees on image %p", degrees, img);
     return make_me_sway(img, degrees);
 }
 
@@ -156,9 +98,9 @@ int find_rotation_angle(Image *image)
     
     printf("Angular ratio is : %lf\n", ratio);
     
-    double angle = (90 * (ratio / 0.5));
+    double angle = (90 * (ratio / 0.5)) / 4.8;
     
-    printf("\tthe suggested rotation angle is : %lf\n", angle);
+    printf("\tso the suggested rotation angle is : %lf\n", angle);
     
     return (int) angle;
 }
@@ -166,9 +108,9 @@ int find_rotation_angle(Image *image)
 int nb_lines_under_threshold(float *variance, int height)
 {
     int nblines = 0;
-    for (int i = 0; i < height; ++i)
+    for (int i = 0; i < height && variance[i] < THRESHOLD_VARIANCE; ++i)
     {
-        nblines+=variance[i] < THRESHOLD_VARIANCE;
+        nblines ++;
     }
     return nblines;
 };
