@@ -25,7 +25,7 @@ Image *img_create(GdkPixbuf *file)
             guchar *p = ori + y * row_size + x * n;
             int i = y * img->width + x;
             int v = (p[0] + p[1] + p[2]) / 3;
-            img->raster[i] = v < 128;
+            img->raster[i] = v < 192;
         }
     return img;
 }

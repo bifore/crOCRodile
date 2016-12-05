@@ -70,6 +70,7 @@ char *choosecharacter(char *filename, char *text)
         G_CALLBACK (characterdisplayed), entry);
     gtk_widget_show_all(dialog);
 
+    return 0;
 
 }
 void loading(char state)
@@ -161,7 +162,7 @@ void auto_rotate_gui()
     auto_rotate(filename_glob);
 }
 
-void chooser(GtkWidget *widget, gpointer *data)
+void chooser_(GtkWidget *widget, gpointer *data)
 {
     GtkWidget *dialog;
     gint res;
@@ -190,7 +191,7 @@ void chooser(GtkWidget *widget, gpointer *data)
 
 void setText(char *text)
 {
-    gtk_label_set_text(label, text);
+    gtk_label_set_text((GtkLabel *) label, text);
     gtk_widget_queue_draw(label);
 }
 
@@ -228,7 +229,7 @@ void activate(GtkApplication *app, gpointer userdata)
     /* creating button load */
 
     button = gtk_button_new_with_label("Load Image");
-    g_signal_connect(button, "clicked", G_CALLBACK (chooser), image);
+    g_signal_connect(button, "clicked", G_CALLBACK (chooser_), image);
 
     /* Place the load button in the grid cell (0,0), and make it fill
      * just 1 cell horizontally and vertically (ie no spanning)
