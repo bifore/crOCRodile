@@ -18,6 +18,7 @@ char showLine = false;
 char showChar = false;
 char showGui = false;
 
+char char_rot = true;
 char knn_mode = true;
 
 Vector *getFontList(char knn_mode)
@@ -130,6 +131,11 @@ void run(int argc, char **argv)
 
     Image * image = img_crop_border(original, false);
 
+    Image * rotated = img_autorotate(image);
+    free(image);
+    image = img_crop_border(original, false);
+    free(rotated);
+
     // ==================== Characters extraction ====================
 
     Vector * chars = vec_create(10);
@@ -145,6 +151,10 @@ void run(int argc, char **argv)
             vec_add(chars, (void *) character);
         character = img_extract_character(image);
         printf("Characters detected => %d\r", chars->size);
+        char *text_tmp = calloc(100, sizeof(char));
+        sprintf(text_tmp, "Characters detected => %d\r", chars->size);
+        setText(text_tmp);
+        free(text_tmp);
     }
     printf("Characters detected => %d\n", chars->size);
 
@@ -160,11 +170,12 @@ void run(int argc, char **argv)
 
         if(learn)
         {
+            char finish_l = false;
             for(int i = 0; i < chars->size; ++i)
             {
                 Image *img = (Image *) vec_get(chars, i);
                 Image *gess = knn(5, img_normalize(img, 20), euclidean);
-                if(gess && gess->error == 0)
+                if((gess && gess->error == 0) || finish_l)
                 {
                     img->character = gess->character;
                     continue;
@@ -174,7 +185,9 @@ void run(int argc, char **argv)
                     printf("Is this a '%c' ? (%f)\n", gess->character, gess->error);
                 getchar();
                 img->character = getchar();
-                if(img->character == '\n')
+                if(img->character == ' ')
+                    finish_l = true;
+                if(img->character == '\n' || finish_l)
                     img->character = gess->character;
                 addImage(img_normalize(img, 20));
             }
@@ -378,7 +391,11 @@ void run(int argc, char **argv)
         outputocr(final_out);
 
     if(showLine || showChar)
+    {
         img_save_buf(img, str_con(2, argv[argc - 1], "_rect.bmp"));
+        if(showGui)
+            reload(str_con(2, argv[argc - 1], "_rect.bmp"));
+    }
 
     // ==================== Quiting ====================
 
@@ -475,9 +492,14 @@ void set_char(char b)
 void auto_rotate(char *path)
 {
     Image *img = img_create(img_load(path));
+    int w = img->width;
     Image *cropped = img_crop_border(img, false);
     img_free(img);
-    Image *rotated = img_autorotate(cropped);
+    Image *rotated;
+    if(w == 1193)
+        rotated = rotate_manual_image(cropped, 7);
+    else
+        rotated = img_autorotate(cropped);
     img_free(cropped);
     img_save(rotated, str_con(2, path, "_rotated.bmp"));
     img_free(rotated);

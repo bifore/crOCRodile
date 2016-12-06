@@ -32,7 +32,7 @@ Image *rotate_manual_image(Image *img, double degrees)
         return img;
     }
     printf("Applying a rotation of %lf degrees on image %p", degrees, img);
-    return make_me_sway(img, degrees);
+    return make_me_sway(img, degrees / 3);
 }
 
 //endregion

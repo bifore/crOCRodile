@@ -114,6 +114,8 @@ void readDistance(char *path, int font)
     if(!image_set)
         image_set = vec_create(8);
     FILE *file = fopen(path, "r");
+    if(!file)
+        return;
     fseek(file, 0L, SEEK_END);
     int sz = (ftell(file) - 1) / 51;
     rewind(file);
